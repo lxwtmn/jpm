@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,7 @@ class JpmCliTest {
     int exitCode;
     try (var outStream = new PrintStream(out, true, StandardCharsets.UTF_8);
         var errStream = new PrintStream(err, true, StandardCharsets.UTF_8)) {
-      exitCode = new JpmCli().run(args, outStream, errStream);
+      exitCode = new JpmCli().run(Path.of("."), args, outStream, errStream);
     }
     return new Result(
         exitCode, out.toString(StandardCharsets.UTF_8), err.toString(StandardCharsets.UTF_8));

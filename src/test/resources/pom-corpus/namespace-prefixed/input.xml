@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<m:project xmlns:m="http://maven.apache.org/POM/4.0.0">
+  <m:modelVersion>4.0.0</m:modelVersion>
+  <m:groupId>com.example</m:groupId>
+  <m:artifactId>demo</m:artifactId>
+  <m:version>1.0.0</m:version>
+
+  <m:dependencies>
+    <m:dependency>
+      <m:groupId>org.slf4j</m:groupId>
+      <m:artifactId>slf4j-api</m:artifactId>
+      <m:version>2.0.13</m:version>
+    </m:dependency>
+  </m:dependencies>
+</m:project>

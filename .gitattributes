@@ -1,0 +1,9 @@
+* text=auto
+
+# The POM corpus is compared byte for byte. Git must never normalise these files:
+# a CRLF case that silently becomes LF on checkout would make the test lie.
+src/test/resources/pom-corpus/** -text
+
+# Launcher scripts need their platform's line endings to be executable at all.
+bin/jpm text eol=lf
+bin/jpm.cmd text eol=crlf
