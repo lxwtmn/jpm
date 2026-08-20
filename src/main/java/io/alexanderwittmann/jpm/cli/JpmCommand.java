@@ -3,6 +3,8 @@ package io.alexanderwittmann.jpm.cli;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ScopeType;
 import picocli.CommandLine.Spec;
 
 /** The root command. Subcommands arrive with the following tickets. */
@@ -13,7 +15,30 @@ import picocli.CommandLine.Spec;
     versionProvider = JpmVersionProvider.class)
 final class JpmCommand implements Callable<Integer> {
 
+  // DESIGN section 5 lists these as global flags. Declaring them here with INHERIT scope means
+  // `jpm --offline add ...` works and every future subcommand gets them for free, instead of each
+  // one redeclaring the same two options.
+  @Option(
+      names = "--offline",
+      scope = ScopeType.INHERIT,
+      description = "Work from the cache only; never touch the network.")
+  private boolean offline;
+
+  @Option(
+      names = "--refresh",
+      scope = ScopeType.INHERIT,
+      description = "Ignore cached metadata and ask the repositories again.")
+  private boolean refresh;
+
   @Spec private CommandSpec spec;
+
+  boolean offline() {
+    return offline;
+  }
+
+  boolean refresh() {
+    return refresh;
+  }
 
   @Override
   public Integer call() {

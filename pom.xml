@@ -27,6 +27,11 @@
 
     <!-- Version placement per DESIGN B-2: artifactId.version -->
     <picocli.version>4.7.7</picocli.version>
+    <!-- The Maven 3.9 generation: resolver 1.9.x. Mixing in maven-resolver-api 2.x breaks. -->
+    <maven.version>3.9.16</maven.version>
+    <maven-resolver.version>1.9.27</maven-resolver.version>
+    <!-- Matches the slf4j-api the resolver already pulls in; a split would reintroduce the warning. -->
+    <slf4j.version>1.7.36</slf4j.version>
     <junit-jupiter.version>6.1.3</junit-jupiter.version>
     <assertj-core.version>3.27.7</assertj-core.version>
     <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
@@ -39,6 +44,43 @@
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <version>${picocli.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <!--
+      ADR-0004: the resolver is embedded so that settings.xml, mirrors, proxies and
+      authentication against a private artifact repository are correct rather than
+      reimplemented. Its local repository is pointed at jpm's own cache, never ~/.m2 (P5).
+    -->
+    <dependency>
+      <groupId>org.apache.maven.resolver</groupId>
+      <artifactId>maven-resolver-supplier</artifactId>
+      <version>${maven-resolver.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-resolver-provider</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings-builder</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <!--
+      The resolver logs through SLF4J. Without a binding on the classpath, SLF4J prints a
+      three-line warning to stderr on every single invocation — noise the user must never see.
+      jpm has no logging story yet, so the honest binding is the one that discards everything.
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -81,6 +123,17 @@
           <include>LICENSE</include>
           <include>NOTICE</include>
         </includes>
+      </resource>
+      <!--
+        Not every bundled component is Apache-2.0: ASM is BSD-3-Clause and slf4j is MIT, and
+        neither ships its licence text inside its own JAR. Both licences require the text to
+        travel with a redistribution, so we carry it. Anything added here has to be listed in
+        NOTICE as well.
+      -->
+      <resource>
+        <directory>src/main/licenses</directory>
+        <targetPath>META-INF/licenses</targetPath>
+        <filtering>false</filtering>
       </resource>
     </resources>
 

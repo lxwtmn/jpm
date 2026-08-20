@@ -2,6 +2,8 @@ package io.alexanderwittmann.jpm.pom;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.alexanderwittmann.jpm.domain.Coordinate;
+import io.alexanderwittmann.jpm.domain.Dependency;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;

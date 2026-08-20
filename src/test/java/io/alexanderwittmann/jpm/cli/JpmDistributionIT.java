@@ -72,6 +72,23 @@ class JpmDistributionIT {
           .as("our own notice text survives the merge")
           .contains("jpm")
           .contains("picocli");
+      assertThat(notice)
+          .as("the notices of the bundled Apache components are merged in, not dropped")
+          .contains("The Apache Software Foundation");
+
+      // Not every bundled component is Apache-2.0, and neither of these ships its licence text
+      // inside its own JAR. Redistribution requires the text, so jpm has to carry it.
+      assertThat(readEntry(jar, "META-INF/licenses/slf4j-MIT.txt"))
+          .contains("QOS.ch")
+          .contains("DEALINGS IN THE SOFTWARE");
+      assertThat(readEntry(jar, "META-INF/licenses/asm-BSD-3-Clause.txt"))
+          .contains("INRIA")
+          .contains("Neither the name")
+          .contains("POSSIBILITY OF SUCH DAMAGE");
+      assertThat(notice)
+          .as("NOTICE has to name the non-Apache licences, or the texts are unfindable")
+          .contains("MIT License")
+          .contains("BSD 3-Clause");
     }
   }
 

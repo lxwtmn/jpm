@@ -1,5 +1,7 @@
 package io.alexanderwittmann.jpm.pom;
 
+import io.alexanderwittmann.jpm.domain.Coordinate;
+import io.alexanderwittmann.jpm.domain.Dependency;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;

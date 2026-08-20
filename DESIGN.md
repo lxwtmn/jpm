@@ -231,6 +231,7 @@ The most important seam runs between **bytes** and **semantics**:
 
 | jpm module | Responsibility |
 |---|---|
+| `domain` | The vocabulary of CONTEXT.md as types — `Coordinate`, `Dependency`. Depends on nothing; everything else depends on it |
 | `cli` | picocli commands, TTY detection, formatting, exit codes |
 | `pom` | The format-preserving XML editor. Knows files and bytes, no Maven semantics |
 | `model` | The effective model via `maven-model-builder`: parent POM, Maven BOMs, `dependencyManagement`, properties, reactor detection. Read-only |
@@ -241,6 +242,11 @@ The most important seam runs between **bytes** and **semantics**:
 `pom` writes and knows nothing about Maven; `model` understands Maven and writes nothing. That
 separation is why the risky part — format preservation — stays isolated and testable byte for
 byte, without mocking Maven.
+
+`domain` exists because `Coordinate` is not the property of any one module: `pom` writes them,
+`metadata` looks them up, `cli` parses them. Keeping the shared vocabulary in the module that
+happened to need it first would have made every other module depend on `pom` for a word the
+glossary owns.
 
 ---
 

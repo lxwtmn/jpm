@@ -1,10 +1,36 @@
 jpm
 Copyright 2026 Alexander Wittmann Consulting GmbH
 
-Distributions of jpm bundle the following components, licensed under the
-Apache License 2.0:
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+Distributions of jpm bundle the components listed below. This list describes what
+the distributed artifact actually contains, not what is planned.
+
+Apache License 2.0 (see META-INF/LICENSE)
 
   - picocli (info.picocli:picocli) — Copyright Remko Popma
+  - Apache Maven: artifact, model, model-builder, repository-metadata, settings,
+    settings-builder, builder-support, resolver-provider
+  - Apache Maven Artifact Resolver: api, spi, impl, util, named-locks,
+    connector-basic, transport-file, transport-http, supplier
+  - Apache HttpComponents: httpclient, httpcore
+  - Apache Commons Codec
+  - Plexus: utils, interpolation, cipher, sec-dispatcher
+  - Gson (com.google.code.gson:gson)
+  - Error Prone annotations (com.google.errorprone:error_prone_annotations)
+  - javax.inject (javax.inject:javax.inject)
+  - jcl-over-slf4j (org.slf4j:jcl-over-slf4j)
 
-This list describes what the distributed artifact actually contains, not what
-is planned; it grows as further components are bundled.
+MIT License (see META-INF/licenses/slf4j-MIT.txt)
+
+  - SLF4J API (org.slf4j:slf4j-api) - Copyright QOS.ch
+  - SLF4J NOP binding (org.slf4j:slf4j-nop) - Copyright QOS.ch
+
+BSD 3-Clause License (see META-INF/licenses/asm-BSD-3-Clause.txt)
+
+  - ASM (org.ow2.asm:asm) - Copyright INRIA, France Telecom
+
+Neither SLF4J nor ASM ships its licence text inside its own JAR, so jpm carries it
+under META-INF/licenses. The per-component NOTICE files of the Apache components
+are merged into META-INF/NOTICE when the distribution is built.

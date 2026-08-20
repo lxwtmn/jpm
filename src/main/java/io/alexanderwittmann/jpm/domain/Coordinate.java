@@ -1,4 +1,4 @@
-package io.alexanderwittmann.jpm.pom;
+package io.alexanderwittmann.jpm.domain;
 
 /** The identity of an artifact without a version, written {@code groupId:artifactId}. */
 public record Coordinate(String groupId, String artifactId) {

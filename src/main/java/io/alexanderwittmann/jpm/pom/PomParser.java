@@ -14,8 +14,11 @@ final class PomParser {
   /**
    * A byte order mark is a signal at the <em>byte</em> level. Once the file has been decoded it
    * survives as a stray U+FEFF ahead of the prolog, which XML forbids and the parser rejects.
+   *
+   * <p>Built from the code point rather than written out: an invisible byte sitting in the
+   * source is exactly what an editor, a merge or a copy-paste silently mangles.
    */
-  static final String BYTE_ORDER_MARK = "﻿";
+  static final String BYTE_ORDER_MARK = Character.toString(0xFEFF);
 
   private PomParser() {}
 
