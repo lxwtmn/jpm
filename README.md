@@ -22,6 +22,11 @@ kein `jpm.json`, kein Lockfile und kein `node_modules`-Äquivalent.
 - **[CONTEXT.md](./CONTEXT.md)** — Glossar der Domänenbegriffe
 - **[docs/adr/](./docs/adr/)** — Architekturentscheidungen mit Begründung
 
+## Lizenz
+
+[Apache-2.0](./LICENSE) — Copyright 2026 Alexander Wittmann Consulting GmbH.
+Gebündelte Abhängigkeiten und ihre Hinweise siehe [NOTICE](./NOTICE).
+
 ## Architekturentscheidungen
 
 | ADR | Entscheidung |

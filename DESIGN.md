@@ -306,7 +306,15 @@ Maven-BOMs in #6, Aggregator-Poms in #7.
 
 ## 9. Offene Punkte
 
-- Lizenz — erst relevant, wenn der OSS-Weg aktiviert wird
-- Namensprüfung `jpm` — beide historischen Kollisionen (jpm4j, npm-Paket `jpm`) sind tot;
-  bei einem OSS-Release neu prüfen
 - Gradle-Phase 2 verdient eine eigene Design-Befragung, bevor sie beginnt
+
+### Erledigt
+
+- **Lizenz: Apache-2.0.** Passend zu den gebündelten Abhängigkeiten (Maven Resolver,
+  `maven-model-builder`, picocli sind sämtlich Apache-2.0), mit ausdrücklichem
+  Patentgrant für den Firmeneinsatz aus A-2, und die im Java-Ökosystem unauffällige Wahl.
+  Folge für den Build: Apache-2.0 §4 verlangt, dass `LICENSE`- und `NOTICE`-Einträge der
+  eingebundenen Artefakte beim Zusammenschütten des Fat-JAR erhalten bleiben statt sich
+  gegenseitig zu überschreiben — siehe Issue #1.
+- **Namensprüfung `jpm`.** Beide historischen Kollisionen (jpm4j, npm-Paket `jpm`) sind
+  tot; `lxwtmn/jpm` war frei.
