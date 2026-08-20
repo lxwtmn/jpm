@@ -1,22 +1,21 @@
-# Triage-Labels
+# Triage labels
 
-Die Skills sprechen in fünf kanonischen Triage-Rollen. Diese Tabelle bildet sie auf die
-Label-Bezeichner ab, die in den GitHub Issues dieses Repos tatsächlich verwendet werden.
+The skills speak in five canonical triage roles. This table maps them to the label names
+actually used on this repository's GitHub issues.
 
-| Label in mattpocock/skills | Label in diesem Repo | Bedeutung |
+| Label in mattpocock/skills | Label in this repository | Meaning |
 | --- | --- | --- |
-| `needs-triage` | `needs-triage` | Muss noch bewertet werden |
-| `needs-info` | `needs-info` | Wartet auf Rückfrage beim Melder |
-| `ready-for-agent` | `ready-for-agent` | Vollständig spezifiziert, ein Agent kann es allein umsetzen |
-| `ready-for-human` | `ready-for-human` | Braucht menschliche Umsetzung |
-| `wontfix` | `wontfix` | Wird nicht bearbeitet |
+| `needs-triage` | `needs-triage` | Still needs to be assessed |
+| `needs-info` | `needs-info` | Waiting on the reporter for more information |
+| `ready-for-agent` | `ready-for-agent` | Fully specified; an agent can carry it alone |
+| `ready-for-human` | `ready-for-human` | Requires human implementation |
+| `wontfix` | `wontfix` | Will not be actioned |
 
-Nennt eine Skill eine Rolle („apply the AFK-ready triage label"), gilt der Bezeichner aus
-der rechten Spalte.
+When a skill names a role ("apply the AFK-ready triage label"), use the name from the
+right-hand column.
 
-Die Labels existieren im Repo und werden über `gh issue edit <n> --add-label "..."`
-gesetzt. Genau ein Triage-Label pro Issue.
+The labels exist on the repository and are applied with
+`gh issue edit <n> --add-label "..."`. Exactly one triage label per issue.
 
-Die rechte Spalte kann angepasst werden, falls das Repo später ein abweichendes Vokabular
-etabliert; dann wenden die Skills die dort existierenden Labels an, statt Duplikate
-anzulegen.
+The right-hand column can be adjusted if the repository later settles on a different
+vocabulary; the skills then apply the existing labels instead of creating duplicates.

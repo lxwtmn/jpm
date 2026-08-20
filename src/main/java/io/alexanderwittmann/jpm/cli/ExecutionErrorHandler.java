@@ -4,16 +4,16 @@ import picocli.CommandLine;
 import picocli.CommandLine.ParseResult;
 
 /**
- * Fängt Fehler ab, die erst beim Ausführen eines Befehls auftreten — im Gegensatz zu
- * {@link ParameterErrorHandler}, der nur den Parse-Pfad abdeckt.
+ * Catches failures that only surface while a command runs — unlike {@link
+ * ParameterErrorHandler}, which covers the parse path alone.
  *
- * <p>Ohne diese Klasse verlässt eine Exception {@link JpmCli#run} und der Nutzer bekommt einen
- * Java-Stacktrace zu sehen, während {@code System.exit} in {@link Main} nie erreicht wird — der
- * Exit-Code käme dann vom JVM-Default statt aus ADR-0007. Genau das würde P6 („Skriptbarkeit
- * ist ein Vertrag") aushebeln.
+ * <p>Without this class an exception would escape {@link JpmCli#run} and the user would be shown
+ * a Java stack trace, while {@code System.exit} in {@link Main} would never be reached — the
+ * exit code would then come from the JVM default instead of from ADR-0007. That is precisely
+ * what would undermine P6 ("scriptability is a contract").
  *
- * <p>Der Stacktrace bleibt bewusst unterdrückt: er ist keine Nutzermeldung. Ein Schalter, der
- * ihn sichtbar macht, gehört zur Diagnose-Ausstattung späterer Tickets.
+ * <p>The stack trace stays suppressed on purpose: it is not a user-facing message. A switch that
+ * reveals it belongs to the diagnostic tooling of later tickets.
  */
 final class ExecutionErrorHandler implements CommandLine.IExecutionExceptionHandler {
 

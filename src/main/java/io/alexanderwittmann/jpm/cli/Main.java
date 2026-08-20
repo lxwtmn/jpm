@@ -1,9 +1,9 @@
 package io.alexanderwittmann.jpm.cli;
 
 /**
- * Einstiegspunkt des Fat-JAR. Bewusst dünn: die einzige Aufgabe ist, den Exit-Code von
- * {@link JpmCli} an die Shell weiterzureichen. Alles Testbare liegt eine Ebene tiefer, damit
- * es ohne {@code System.exit} beobachtbar bleibt.
+ * Entry point of the fat JAR. Deliberately thin: its only job is to hand the exit code from
+ * {@link JpmCli} back to the shell. Everything testable sits one level below, where it stays
+ * observable without {@code System.exit}.
  */
 public final class Main {
 

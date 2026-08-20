@@ -5,25 +5,13 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.UnmatchedArgumentException;
 
 /**
- * Entscheidet, was der Nutzer sieht, wenn die Eingabe nicht geparst werden konnte — ein
- * unbekannter Befehl ({@code jpm isntall}), eine unbekannte Option, ein fehlender Wert.
+ * Decides what the user sees when the input could not be parsed — an unknown command
+ * ({@code jpm isntall}), an unknown option, a missing value.
  *
- * <p>Diese Klasse existiert, weil picocli hier standardmäßig mit {@code 2} beendet. In unserem
- * Vertrag (ADR-0007) ist {@code 2} aber für „Abbruch wegen fehlender Eingabe" reserviert: ein
- * Skript muss einen Tippfehler von einer nötigen Rückfrage unterscheiden können. Fehleingaben
- * sind schlicht Fehler und damit {@link ExitCode#FAILURE}.
- *
- * <p>Nützlich für die Umsetzung:
- *
- * <ul>
- *   <li>{@code ex.getMessage()} — picocli formuliert bereits eine Meldung, die das nicht
- *       erkannte Argument enthält, z. B. {@code Unmatched argument at index 0: 'isntall'}
- *   <li>{@code ex.getCommandLine().getErr()} — der {@code PrintWriter} für stderr; alles
- *       Fehlerhafte gehört dorthin, damit stdout auswertbar bleibt
- *   <li>{@code UnmatchedArgumentException.printSuggestions(ex, writer)} — picocli kann
- *       „Did you mean" von sich aus, ohne dass wir eine Ähnlichkeitssuche bauen
- *   <li>{@code ex.getCommandLine().usage(writer)} — die vollständige Hilfe
- * </ul>
+ * <p>This class exists because picocli exits with {@code 2} here by default. In our contract
+ * (ADR-0007) {@code 2} is reserved for "aborted for want of input": a script has to be able to
+ * tell a typo from a question that needed asking. Malformed input is simply a failure, and thus
+ * {@link ExitCode#FAILURE}.
  */
 final class ParameterErrorHandler implements CommandLine.IParameterExceptionHandler {
 
@@ -33,9 +21,9 @@ final class ParameterErrorHandler implements CommandLine.IParameterExceptionHand
     var err = command.getErr();
 
     err.println(ex.getMessage());
-    // Ein Korrekturvorschlag hilft im Fehlerfall mehr als die vollständige Hilfe, und er
-    // skaliert mit wachsendem Befehlssatz, statt dabei schlechter zu werden. Gibt es nichts
-    // Ähnliches, bleibt der Verweis auf die Hilfe.
+    // A correction suggestion helps more in a failure than the full help text does, and it
+    // scales as the command set grows instead of degrading. When nothing is close enough, the
+    // pointer to the help remains.
     if (!UnmatchedArgumentException.printSuggestions(ex, err)) {
       err.printf("Try '%s --help' for a list of commands.%n", command.getCommandName());
     }

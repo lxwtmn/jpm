@@ -1,95 +1,93 @@
 # jpm
 
-jpm verwaltet Maven-Dependencies über die Kommandozeile, indem es bestehende
-`pom.xml`-Dateien editiert. Dieses Glossar hält die Begriffe fest, mit denen wir über die
-Domäne sprechen — besonders dort, wo Mavens Vokabular, npms Vokabular und jpms eigene
-Begriffe aufeinandertreffen.
+jpm manages Maven dependencies from the command line by editing existing `pom.xml` files.
+This glossary fixes the words we use for the domain — especially where Maven's vocabulary,
+npm's vocabulary and jpm's own terms collide.
 
 ## Language
 
-### Mavens Welt
+### Maven's world
 
-**Koordinate**:
-Die Identität eines Artefakts ohne Version, geschrieben `groupId:artifactId`.
-_Avoid_: GAV (schließt die Version mit ein), Paketname, Artefaktname
+**Coordinate**:
+The identity of an artifact without a version, written `groupId:artifactId`.
+_Avoid_: GAV (that includes the version), package name, artifact name
 
-**Artefakt**:
-Ein veröffentlichtes, versioniertes Paket in einem Artefakt-Repository.
-_Avoid_: Library, Paket, Abhängigkeit
+**Artifact**:
+A published, versioned package living in an artifact repository.
+_Avoid_: library, package, dependency
 
 **Dependency**:
-Ein Eintrag in einer pom, der ein Artefakt für ein Maven-Modul verfügbar macht. Die
-Dependency ist der Eintrag, nicht das Artefakt selbst.
-_Avoid_: Abhängigkeit, Package
+An entry in a POM that makes an artifact available to a Maven module. The dependency is the
+entry, not the artifact itself.
+_Avoid_: requirement, package
 
-**Maven-Modul**:
-Ein Unterprojekt mit eigener pom innerhalb eines Reaktors.
-_Avoid_: Modul (unqualifiziert), Subprojekt, Projekt
+**Maven module**:
+A subproject with its own POM inside a reactor.
+_Avoid_: module (unqualified), subproject, project
 
-**Reaktor**:
-Der Verbund aller Maven-Module, die unter einem Aggregator-Pom gemeinsam gebaut werden.
-_Avoid_: Workspace, Monorepo, Projektbaum
+**Reactor**:
+The set of Maven modules built together under an aggregator POM.
+_Avoid_: workspace, monorepo, project tree
 
-**Aggregator-Pom**:
-Die pom, die andere Maven-Module per `<modules>` auflistet. Nicht zwangsläufig dieselbe
-Datei wie der Parent-Pom.
-_Avoid_: Root-Pom, Master-Pom, Parent
+**Aggregator POM**:
+The POM that lists other Maven modules under `<modules>`. Not necessarily the same file as
+the parent POM.
+_Avoid_: root POM, master POM, parent
 
-**Parent-Pom**:
-Die pom, von der eine andere per `<parent>` erbt.
-_Avoid_: Elternprojekt, Basis-Pom
+**Parent POM**:
+The POM another one inherits from via `<parent>`.
+_Avoid_: base POM, super POM
 
-**Maven-BOM**:
-Ein Artefakt vom Typ `pom`, das per `scope=import` Versionen für andere Artefakte vorgibt.
-_Avoid_: BOM (unqualifiziert — siehe Kollidierende Begriffe), Stückliste, Versionssatz
+**Maven BOM**:
+An artifact of type `pom` that dictates versions for other artifacts via `scope=import`.
+_Avoid_: BOM (unqualified — see Colliding terms), bill of materials, version set
 
-**Verwaltete Dependency**:
-Eine Dependency, deren Version aus `<dependencyManagement>` stammt und die deshalb ohne
-`<version>` in der pom steht.
-_Avoid_: gepinnte Dependency, BOM-Dependency, managed dependency
+**Managed dependency**:
+A dependency whose version comes from `<dependencyManagement>` and which therefore appears
+in the POM without a `<version>`.
+_Avoid_: pinned dependency, BOM dependency
 
 **Scope**:
-Der Klassenpfad-Geltungsbereich einer Dependency: `compile`, `test`, `provided`, `runtime`.
-_Avoid_: Sichtbarkeit, Konfiguration (Gradles Wort für dasselbe Konzept)
+The classpath reach of a dependency: `compile`, `test`, `provided`, `runtime`.
+_Avoid_: visibility, configuration (Gradle's word for the same idea)
 
-**Artefakt-Repository**:
-Ein Server, der Artefakte ausliefert — Maven Central, Nexus, Artifactory.
-_Avoid_: Repository (unqualifiziert — siehe Kollidierende Begriffe), Registry (npms Wort)
+**Artifact repository**:
+A server that serves artifacts — Maven Central, Nexus, Artifactory.
+_Avoid_: repository (unqualified — see Colliding terms), registry (npm's word)
 
-### jpms Welt
+### jpm's world
 
-**Effektives Modell**:
-Das aufgelöste Maven-Modell eines Maven-Moduls inklusive Parent, importierter Maven-BOMs
-und Properties. Die Wahrheit, gegen die jpm seine Entscheidungen trifft.
-_Avoid_: Effective POM (Mavens Name für die Ausgabe von `help:effective-pom`), aufgelöste pom
+**Effective model**:
+The resolved Maven model of a Maven module including its parent POM, imported Maven BOMs and
+properties. The truth jpm decides against.
+_Avoid_: effective POM (Maven's name for the output of `help:effective-pom`), resolved POM
 
-**Selektor**:
-Der optionale Teil hinter `@` in einem Befehl, etwa `@2.15`. Bestimmt, welche Version zum
-Befehlszeitpunkt gewählt wird, und steht nie in der pom.
-_Avoid_: Range, Constraint, Versionsangabe
+**Selector**:
+The optional part after `@` in a command, such as `@2.15`. It decides which version is chosen
+at the moment the command runs, and never appears in the POM.
+_Avoid_: range, constraint, version spec
 
-**Neueste stabile Version**:
-Die höchste Version einer Koordinate, deren Qualifier keine Vorabversion bezeichnet.
-_Avoid_: latest, release (beides Felder in `maven-metadata.xml` mit abweichender Bedeutung)
+**Latest stable version**:
+The highest version of a coordinate whose qualifier does not denote a pre-release.
+_Avoid_: latest, release (both are fields in `maven-metadata.xml` with a different meaning)
 
-**Ablageform**:
-Ob jpm eine Version inline in `<version>` schreibt oder als Eintrag in `<properties>`.
-_Avoid_: Versionsstil, Strategie
+**Version placement**:
+Whether jpm writes a version inline in `<version>` or as an entry under `<properties>`.
+_Avoid_: version style, strategy
 
-**jpm-Modul**:
-Ein Codemodul von jpm selbst — `cli`, `pom`, `model`, `metadata`, `search`, `commands`.
-_Avoid_: Modul (unqualifiziert), Komponente, Package
+**jpm module**:
+A code module of jpm itself — `cli`, `pom`, `model`, `metadata`, `search`, `commands`.
+_Avoid_: module (unqualified), component, package
 
-### Kollidierende Begriffe
+### Colliding terms
 
-Drei Wörter haben in dieser Domäne zwei Bedeutungen. Sie werden nie unqualifiziert
-verwendet — weder in Prosa noch in Bezeichnern.
+Three words carry two meanings in this domain. They are never used unqualified — neither in
+prose nor in identifiers.
 
-**BOM**: entweder **Maven-BOM** oder **Byte Order Mark** (die UTF-8-Signatur am
-Dateianfang, die der pom-Editor erhalten muss).
+**BOM**: either **Maven BOM** or **byte order mark** (the UTF-8 signature at the start of a
+file, which the POM editor must preserve).
 
-**Modul**: entweder **Maven-Modul** (im Reaktor des Nutzers) oder **jpm-Modul** (in jpms
-eigenem Code).
+**Module**: either **Maven module** (in the user's reactor) or **jpm module** (in jpm's own
+code).
 
-**Repository**: entweder **Artefakt-Repository** (Central, Nexus, Artifactory) oder
-**Git-Repository**.
+**Repository**: either **artifact repository** or **Git repository**.

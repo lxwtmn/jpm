@@ -5,9 +5,9 @@ import java.io.PrintWriter;
 import picocli.CommandLine;
 
 /**
- * Die Nahtstelle, die das Launcher-Skript aufruft: Argumente und Ausgabeströme hinein,
- * Exit-Code heraus. Die Ströme werden hereingereicht statt {@code System.out} zu benutzen,
- * damit das Verhalten beobachtbar ist, ohne globalen Zustand anzufassen.
+ * The boundary the launcher script calls: arguments and output streams in, exit code out. The
+ * streams are passed in rather than taken from {@code System.out} so that behaviour stays
+ * observable without touching global state.
  */
 public final class JpmCli {
 

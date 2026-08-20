@@ -5,7 +5,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
-/** Der Wurzelbefehl. Unterbefehle kommen mit den folgenden Tickets hinzu. */
+/** The root command. Subcommands arrive with the following tickets. */
 @Command(
     name = "jpm",
     description = "Manage Maven dependencies without editing pom.xml by hand.",
@@ -17,8 +17,8 @@ final class JpmCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    // Ein Aufruf ohne Befehl ist keine Fehleingabe, sondern die Frage „was kannst du?" —
-    // also die Hilfe auf stdout, nicht auf stderr, und Exit 0.
+    // Invoking jpm without a command is not a malformed input but the question "what can you
+    // do?" — so the help goes to stdout, not stderr, and the exit code is 0.
     spec.commandLine().usage(spec.commandLine().getOut());
     return ExitCode.SUCCESS;
   }

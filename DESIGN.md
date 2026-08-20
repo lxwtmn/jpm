@@ -1,320 +1,321 @@
 # jpm — Design
 
-Stand: 2026-08-20. Ergebnis einer strukturierten Design-Befragung in vier Runden.
+The result of a structured design interrogation across four rounds.
 
-Dieses Dokument ist die **Spezifikation**: was jpm tut, wie es aufgebaut ist, was es
-ausdrücklich nicht tut. Das **Warum** der schwer umkehrbaren Entscheidungen steht in
-[docs/adr/](./docs/adr/) und wird hier nicht wiederholt — jede Begründung soll genau einen
-Ort haben. Die Begriffe folgen [CONTEXT.md](./CONTEXT.md).
-
----
-
-## 1. Was jpm ist
-
-Ein CLI, das Maven-Dependencies verwaltet, ohne dass man `pom.xml` von Hand editiert.
-Vorbild ist npm — **nur in der Bedienung, nicht im Datenmodell**.
-
-v1 löst zwei Schmerzpunkte:
-
-1. Koordinate und aktuelle Version finden (kein mvnrepository.com mehr)
-2. Den pom-Eintrag korrekt setzen (kein XML-Editieren von Hand)
-
-Updates (`outdated` / `update`) folgen unmittelbar danach.
-
-Zielgruppe: eigene Firma/Team. Ein späterer OSS-Release wird offengehalten, treibt aber
-keine v1-Entscheidung. Das erzwingt früh private Artefakt-Repositories, Auth, Multi-Modul-
-und Parent-Pom-Fälle — also genau das, was ein OSS-Release ohnehin bräuchte, ohne schon
-Support-Last zu tragen.
+This document is the **specification**: what jpm does, how it is built, what it deliberately
+does not do. The **why** behind the hard-to-reverse decisions lives in [docs/adr/](./docs/adr/)
+and is not repeated here — every rationale should have exactly one home. Terminology follows
+[CONTEXT.md](./CONTEXT.md).
 
 ---
 
-## 2. Grundprinzipien
+## 1. What jpm is
 
-| | Prinzip | Begründung |
+A CLI that manages Maven dependencies without anybody editing `pom.xml` by hand. npm is the
+model — **for the interface only, not for the data model**.
+
+v1 solves two pain points:
+
+1. Finding the coordinate and the current version (no more mvnrepository.com)
+2. Writing the POM entry correctly (no more hand-edited XML)
+
+Updates (`outdated` / `update`) follow immediately after.
+
+Audience: our own company and team. A later open-source release is kept open but drives no v1
+decision. That focus forces private artifact repositories, auth, multi-module and parent-POM
+cases early — exactly what an open-source release would need anyway, without yet carrying the
+support burden.
+
+---
+
+## 2. Guiding principles
+
+Everything else follows from these six sentences.
+
+| | Principle | Rationale |
 |---|---|---|
-| **P1** | Die pom gehört dem Nutzer. jpm ist Editor, nicht Besitzer. | [ADR-0001](./docs/adr/0001-pom-bleibt-kanonisch.md) |
-| **P2** | In der pom stehen immer exakte Versionen. | [ADR-0002](./docs/adr/0002-exakte-versionen-keine-ranges.md) |
-| **P3** | Maßgeblich ist das effektive Modell, nicht der Dateitext. | [ADR-0003](./docs/adr/0003-effektives-modell-statt-dateitext.md) |
-| **P4** | Nichts still tun, was der Nutzer nicht bemerken würde. | siehe unten |
-| **P5** | Fremder Zustand wird nicht verändert. | siehe unten |
-| **P6** | Skriptbarkeit ist ein Vertrag, kein Nachgedanke. | [ADR-0007](./docs/adr/0007-exit-code-vertrag.md) |
+| **P1** | The POM belongs to the user. jpm is an editor, not an owner. | [ADR-0001](./docs/adr/0001-pom-stays-canonical.md) |
+| **P2** | The POM always contains exact versions. | [ADR-0002](./docs/adr/0002-exact-versions-no-ranges.md) |
+| **P3** | The effective model decides, not the file text. | [ADR-0003](./docs/adr/0003-effective-model-over-file-text.md) |
+| **P4** | Never do silently what the user would not notice. | see below |
+| **P5** | Foreign state is not modified. | see below |
+| **P6** | Scriptability is a contract, not an afterthought. | [ADR-0007](./docs/adr/0007-exit-code-contract.md) |
 
-**Zu P4:** Scopes werden vorgeschlagen, nie stillschweigend gesetzt. Verwaltete
-Dependencies werden nie stillschweigend übersteuert. Jeder Schreibvorgang berichtet
-danach präzise, was wohin geschrieben wurde und woher die Version stammt.
+**On P4:** Scopes are suggested, never set silently. Managed dependencies are never silently
+overridden. Every write reports afterwards exactly what went where and where the version came
+from.
 
-**Zu P5:** jpm liest `~/.m2` und `settings.xml`, schreibt aber niemals hinein. Eigener
-Cache, eigenes Verzeichnis. Maven-Zustand bleibt unangetastet.
+**On P5:** jpm reads `~/.m2` and `settings.xml` but never writes into them. Its own cache, its
+own directory. Maven's state stays untouched.
 
 ---
 
-## 3. Nicht-Ziele
+## 3. Non-goals
 
-Bewusst ausgeschlossen. Diese Liste ist so wichtig wie der Funktionsumfang.
+Deliberately excluded. This list matters as much as the feature set.
 
-| Nicht-Ziel | Warum |
+| Non-goal | Why |
 |---|---|
-| Lockfile / Reproduzierbarkeitsgarantie | Exakte Versionen (P2) leisten das bereits ausreichend |
-| Konfliktauflösung, `<exclusion>`-Verwaltung, `why` / Dependency-Tree | Eigenes Produkt; `mvn dependency:tree` existiert |
-| Task-Runner (`jpm run`) | Anderes Tool, das nur zufällig denselben Namen tragen könnte |
-| Artefakte herunterladen | Nur optional per `--fetch`; der nächste `mvn`-Lauf tut es ohnehin |
-| Schreiben in `~/.m2` | P5 |
-| Eigene Konfigurationsdatei | `settings.xml` ist die einzige Quelle für Artefakt-Repositories, Auth, Mirrors, Proxy. Eine zweite Konfigurationsquelle ist eine zweite Fehlerquelle |
-| Projekt-Scaffolding (`jpm init`) | Maven-Archetypes existieren |
-| Gradle in v1 | [ADR-0005](./docs/adr/0005-maven-zuerst-gradle-ueber-version-catalogs.md) |
-| `pom.xml` generieren | [ADR-0001](./docs/adr/0001-pom-bleibt-kanonisch.md) |
+| Lock file / reproducibility guarantee | Exact versions (P2) already provide enough |
+| Conflict resolution, `<exclusion>` management, `why` / dependency tree | A separate product; `mvn dependency:tree` exists |
+| Task runner (`jpm run`) | A different tool that would merely share the name |
+| Downloading artifacts | Only optionally via `--fetch`; the next `mvn` run does it anyway |
+| Writing into `~/.m2` | P5 |
+| A configuration file of its own | `settings.xml` is the single source for artifact repositories, auth, mirrors, proxy. A second configuration source is a second source of error |
+| Project scaffolding (`jpm init`) | Maven archetypes exist |
+| Gradle in v1 | [ADR-0005](./docs/adr/0005-maven-first-gradle-via-version-catalogs.md) |
+| Generating `pom.xml` | [ADR-0001](./docs/adr/0001-pom-stays-canonical.md) |
 
 ---
 
-## 4. Entscheidungen
+## 4. Decisions
 
-### B — Datenmodell
+### B — Data model
 
-- **B-1** `pom.xml` bleibt kanonisch; jpm editiert formaterhaltend in-place.
-  → [ADR-0001](./docs/adr/0001-pom-bleibt-kanonisch.md)
+- **B-1** `pom.xml` stays canonical; jpm edits it in place, preserving formatting.
+  → [ADR-0001](./docs/adr/0001-pom-stays-canonical.md)
 
-- **B-2 Ablageform.** Inline-`<version>` oder `<properties>`: **die Konvention des
-  Projekts wird erkannt und fortgeführt** (Mehrheitsentscheid über bestehende Einträge),
-  übersteuerbar per `--property` / `--inline`.
-  Property-Benennung: `<artifactId>.version` als Default — **aber** existiert bereits eine
-  Property, deren Wert die Version eines Artefakts derselben groupId ist (typisch
-  `<jackson.version>`), wird diese wiederverwendet statt eine zweite anzulegen.
-  Grund: Ein Werkzeug, das das Schema des Projekts bricht, erzeugt Diff-Rauschen und
-  Review-Reibung — und daran scheitert die Akzeptanz im Team.
+- **B-2 Version placement.** Inline `<version>` or `<properties>`: **the project's own
+  convention is detected and continued** (majority vote over existing entries), overridable
+  with `--property` / `--inline`.
+  Property naming: `<artifactId>.version` by default — **but** if a property already exists
+  whose value is the version of an artifact with the same groupId (typically
+  `<jackson.version>`), that one is reused instead of adding a second.
+  Reason: a tool that breaks the project's scheme produces diff noise and review friction —
+  and that is what kills adoption in a team.
 
-- **B-3 Zielbestimmung im Reaktor.** Ziel ist die nächste `pom.xml` vom
-  Arbeitsverzeichnis aufwärts. Im Reaktor-Root mit mehreren Maven-Modulen wird
-  **interaktiv gefragt statt geraten** — eine Dependency im Aggregator-Pom ist für alle
-  Maven-Module sichtbar und fast nie gewollt. Ohne TTY und ohne `--module`: **Fehler mit
-  klarer Meldung, niemals raten.** Bewusstes Eintragen ins `<dependencyManagement>` des
-  Parent-Poms: `--managed`.
+- **B-3 Target selection in a reactor.** The target is the nearest `pom.xml` walking up from
+  the working directory. At a reactor root with several Maven modules jpm **asks instead of
+  guessing** — a dependency in the aggregator POM is visible to every Maven module and is
+  almost never what was meant. Without a TTY and without `--module`: **fail with a clear
+  message, never guess.** Deliberately writing into the parent POM's `<dependencyManagement>`:
+  `--managed`.
 
-- **B-4 Scope.** Die Flags `--test` / `--provided` / `--runtime` sind die Wahrheit. Eine
-  Heuristik (junit\*, mockito\*, testcontainers\* → `test`; lombok → `provided`) darf
-  **vorschlagen**, nie entscheiden. Ein still falsch gesetzter Scope bricht nichts sofort,
-  sondern erst beim Packaging oder zur Laufzeit — die unangenehmste Fehlerklasse.
+- **B-4 Scope.** The flags `--test` / `--provided` / `--runtime` are the truth. A heuristic
+  (junit\*, mockito\*, testcontainers\* → `test`; lombok → `provided`) may **suggest**, never
+  decide. A silently wrong scope breaks nothing immediately — it breaks at packaging time or
+  at runtime, which is the nastiest class of failure.
 
-### C — Build-Tool-Abdeckung
+### C — Build tool coverage
 
-- **C-1** Maven zuerst, vollständig. Gradle ist Phase 2 und beginnt bei Version Catalogs.
-  → [ADR-0005](./docs/adr/0005-maven-zuerst-gradle-ueber-version-catalogs.md)
+- **C-1** Maven first, completely. Gradle is phase 2 and starts at version catalogs.
+  → [ADR-0005](./docs/adr/0005-maven-first-gradle-via-version-catalogs.md)
 
-### D — Auflösung & Metadaten
+### D — Resolution and metadata
 
-- **D-1 Metadatenquelle.** Versionsinformationen kommen aus `maven-metadata.xml` der im
-  Projekt konfigurierten Artefakt-Repositories — funktioniert für Central **und** internes
-  Nexus/Artifactory, ohne externe API-Abhängigkeit und ohne Rate-Limit. Die
-  Central-Search-API wird **ausschließlich** für Freitextsuche benutzt.
-  Konsequenz, die die Hilfe klar sagen muss: `search` findet keine internen Artefakte.
+- **D-1 Metadata source.** Version information comes from the `maven-metadata.xml` of the
+  artifact repositories configured for the project — which works for Central **and** an
+  internal Nexus/Artifactory, without an external API dependency and without a rate limit. The
+  Central search API is used **exclusively** for free-text search.
+  A consequence the help text must state plainly: `search` does not find internal artifacts.
 
-- **D-2 Neueste stabile Version.** Höchste Version, deren Qualifier stabil ist
-  (`ComparableVersion` aus `maven-artifact` kennt die Ordnung
-  alpha < beta < milestone < rc < snapshot < *leer*); `--pre` erlaubt Vorabversionen.
-  Ein einfaches `<release>` aus den Metadaten genügt **nicht**: JUnit, Spring und Jackson
-  veröffentlichen regelmäßig `-M1`/`-RC1` als reguläre Releases, die damit still in der
-  Produktions-pom landen würden.
-  Zusätzlich ein HTTP-HEAD auf die gewählte `.pom` als Existenzprüfung — Metadaten listen
-  auch gelöschte oder nie hochgeladene Artefakte; schlägt der Check fehl, wird die
-  nächstniedrigere Version genommen.
-  Zur Selektor-Syntax → [ADR-0002](./docs/adr/0002-exakte-versionen-keine-ranges.md)
+- **D-2 Latest stable version.** The highest version whose qualifier is stable
+  (`ComparableVersion` from `maven-artifact` knows the ordering
+  alpha < beta < milestone < rc < snapshot < *none*); `--pre` allows pre-releases.
+  A plain `<release>` from the metadata is **not** enough: JUnit, Spring and Jackson regularly
+  publish `-M1`/`-RC1` as ordinary releases, which would silently land in a production POM.
+  Additionally an HTTP HEAD against the chosen `.pom` as an existence check — metadata also
+  lists deleted or never-uploaded artifacts; if the check fails, the next lower version is
+  taken.
+  On selector syntax → [ADR-0002](./docs/adr/0002-exact-versions-no-ranges.md)
 
-- **D-3 Maven-BOM-Awareness.** Ist die Koordinate im effektiven Modell bereits verwaltet,
-  wird die Dependency ohne `<version>` eingefügt.
-  → [ADR-0003](./docs/adr/0003-effektives-modell-statt-dateitext.md)
+- **D-3 Maven BOM awareness.** If the coordinate is already managed in the effective model,
+  the dependency is inserted without a `<version>`.
+  → [ADR-0003](./docs/adr/0003-effective-model-over-file-text.md)
 
-- **D-4 Cache.** Metadaten-Cache mit ca. 1 h TTL, `--refresh` erzwingt Neuladen,
-  `--offline` verbietet Netzzugriff. Mavens `updatePolicy: daily` ist für einen Build
-  richtig, für ein interaktives Werkzeug aber falsch — man will ein zehn Minuten altes
-  Release sofort sehen. Umgekehrt sind bei `outdated` über 60 Dependencies 60 Requests
-  spürbar träge. Cache-Ort: `%LOCALAPPDATA%\jpm\cache` (Windows) bzw. `$XDG_CACHE_HOME/jpm`.
+- **D-4 Cache.** A metadata cache with roughly a 1 h TTL, `--refresh` forces a reload,
+  `--offline` forbids network access. Maven's `updatePolicy: daily` is right for a build but
+  wrong for an interactive tool — you want to see a ten-minute-old release immediately.
+  Conversely, `outdated` across 60 dependencies means 60 requests, which is noticeably slow.
+  Cache location: `%LOCALAPPDATA%\jpm\cache` on Windows, `$XDG_CACHE_HOME/jpm` elsewhere.
 
-- **D-5 Konfiguration.** Artefakt-Repositories, Mirrors, Auth und Proxy kommen
-  ausschließlich aus `settings.xml`, gelesen über den eingebetteten Resolver.
+- **D-5 Configuration.** Artifact repositories, mirrors, auth and proxy come exclusively from
+  `settings.xml`, read through the embedded resolver.
 
-### E — Implementierung & Auslieferung
+### E — Implementation and distribution
 
-- **E-1/E-2** Java (Bytecode-Ziel 17) mit eingebettetem Maven Resolver und
+- **E-1/E-2** Java (bytecode target 17) with an embedded Maven Resolver and
   `maven-model-builder`.
-  → [ADR-0004](./docs/adr/0004-java-mit-eingebettetem-maven-resolver.md)
+  → [ADR-0004](./docs/adr/0004-java-with-embedded-maven-resolver.md)
 
-- **E-3 CLI-Framework: picocli** — Standard im Java-Ökosystem, und sein Annotation
-  Processor erzeugt die GraalVM-Konfiguration bereits mit.
+- **E-3 CLI framework: picocli** — the standard in the Java ecosystem, and its annotation
+  processor already emits the GraalVM configuration.
 
-- **E-4 Auslieferung.** Zuerst Fat-JAR mit Launcher-Skripten — `bin/jpm` (POSIX sh) und
-  `bin/jpm.cmd` (Windows) —, native-image als Ziel, nicht als erster Schritt. Später GitHub-Actions-Matrix und Scoop-Bucket (Windows ist die
-  Hauptplattform); SDKMAN! scheidet aus, solange das so ist.
+- **E-4 Distribution.** A fat JAR first, with launcher scripts — `bin/jpm` (POSIX sh) and
+  `bin/jpm.cmd` (Windows) — and native-image as the goal rather than the first step. Later a
+  GitHub Actions matrix and a Scoop bucket (Windows is the primary platform); SDKMAN! is out
+  while that holds.
 
-- **E-5 Schreibsicherheit.** Ergebnis im Speicher erzeugen → neu parsen und verifizieren →
-  Temp-Datei → atomarer Move. Schlägt die Verifikation fehl, wird das Original nie
-  angefasst. Ist die Ausgangs-pom nicht parsebar: sofortiger Abbruch, ohne irgendetwas zu
-  schreiben. Kein Backup, kein Bestätigungsprompt, kein Git-Dirty-Check
-  → [ADR-0006](./docs/adr/0006-schreiben-ohne-bestaetigung.md)
+- **E-5 Write safety.** Produce the result in memory → re-parse and verify → temp file →
+  atomic move. If verification fails the original is never touched. If the source POM does not
+  parse: abort immediately without writing anything. No backup, no confirmation prompt, no
+  Git-dirty check → [ADR-0006](./docs/adr/0006-write-without-confirmation.md)
 
-### F — CLI-Oberfläche
+### F — Command-line surface
 
-- **F-1 Benennung.** `add` ist kanonisch, `install` und `i` sind Aliase (analog `remove` /
-  `rm` / `uninstall`). Namen sind Versprechen: `install` verspricht, dass danach etwas
-  installiert ist — das wäre hier falsch. Der Alias löst den Zielkonflikt: Wahrheit im
-  kanonischen Namen, Vertrautheit an der Oberfläche.
+- **F-1 Naming.** `add` is canonical; `install` and `i` are aliases (likewise `remove` / `rm` /
+  `uninstall`). Names are promises: `install` promises that something is installed afterwards,
+  which would be false here. The alias resolves the conflict — truth in the canonical name,
+  familiarity at the surface.
 
-- **F-2 Interaktivität.** TTY-Erkennung steuert Rückfragen und Farbe; `--yes` nimmt alle
-  Vorschläge an, `--no-input` verbietet Rückfragen. `NO_COLOR` wird respektiert.
+- **F-2 Interactivity.** TTY detection governs prompts and colour; `--yes` accepts every
+  suggestion, `--no-input` forbids questions. `NO_COLOR` is honoured.
 
-- **F-3 Exit-Codes.** `0` Erfolg, `1` Fehler, `2` Abbruch wegen fehlender Eingabe.
-  → [ADR-0007](./docs/adr/0007-exit-code-vertrag.md)
+- **F-3 Exit codes.** `0` success, `1` failure, `2` aborted for want of input.
+  → [ADR-0007](./docs/adr/0007-exit-code-contract.md)
 
-- **F-4 Schreibverhalten.** Sofort schreiben, danach präzise berichten; `--dry-run` für
-  die Vorschau. → [ADR-0006](./docs/adr/0006-schreiben-ohne-bestaetigung.md)
+- **F-4 Write behaviour.** Write immediately, report precisely afterwards; `--dry-run` for the
+  preview. → [ADR-0006](./docs/adr/0006-write-without-confirmation.md)
 
-- **F-5 Maschinenlesbare Ausgabe.** `--json` für `outdated` und `search`. Ausgabemodell
-  intern von der Formatierung getrennt, damit Nachrüsten ein Adapter ist und kein Umbau.
+- **F-5 Machine-readable output.** `--json` for `outdated` and `search`. The output model is
+  kept separate from the text formatting so that retrofitting is an adapter, not a rebuild.
 
 ---
 
-## 5. Befehlssatz v1
+## 5. Command set for v1
 
 ```
-jpm add <groupId:artifactId>[@<selektor>]  # Alias: install, i
-    --test | --provided | --runtime        # Scope (B-4)
-    --module <name>                        # Ziel-Maven-Modul (B-3)
-    --managed                              # ins <dependencyManagement> des Parent-Poms
-    --property | --inline                  # Ablageform übersteuern (B-2)
-    --fetch                                # Artefakte anschließend auflösen
+jpm add <groupId:artifactId>[@<selector>]  # aliases: install, i
+    --test | --provided | --runtime        # scope (B-4)
+    --module <name>                        # target Maven module (B-3)
+    --managed                              # into the parent POM's <dependencyManagement>
+    --property | --inline                  # override version placement (B-2)
+    --fetch                                # resolve artifacts afterwards
     --dry-run
 
-jpm remove <groupId:artifactId>            # Alias: rm, uninstall
-jpm search <text>                          # nur Maven Central (D-1)
-jpm outdated                               # immer Exit 0 (ADR-0007)
+jpm remove <groupId:artifactId>            # aliases: rm, uninstall
+jpm search <text>                          # Maven Central only (D-1)
+jpm outdated                               # always exit 0 (ADR-0007)
 jpm update [<groupId:artifactId>]
-    --patch | --minor | --major            # Default: --minor
-    --all                                  # nötig ohne TTY
+    --patch | --minor | --major            # default: --minor
+    --all                                  # required without a TTY
 ```
 
-Globale Flags: `--yes`, `--no-input`, `--offline`, `--refresh`, `--json`, `--dry-run`.
+Global flags: `--yes`, `--no-input`, `--offline`, `--refresh`, `--json`, `--dry-run`.
 
-Später: `info`, `list`.
+Later: `info`, `list`.
 
-### Verhalten im Detail
+### Behaviour in detail
 
-**`add`** — Version auflösen (D-2) → effektives Modell prüfen (D-3) → Ziel-Maven-Modul
-bestimmen (B-3) → Scope klären (B-4) → Ablageform bestimmen (B-2) → atomar schreiben
-(E-5) → berichten: was, wohin, welcher Scope, welche Version, **woher die Version stammt**.
+**`add`** — resolve the version (D-2) → consult the effective model (D-3) → determine the
+target Maven module (B-3) → settle the scope (B-4) → determine version placement (B-2) → write
+atomically (E-5) → report: what, where, which scope, which version, and **where the version
+came from**.
 
-**`remove`** — Entfernt den `<dependency>`-Block. Eine dadurch verwaiste Property wird
-mitentfernt, aber **nur bei reaktorweit nachgewiesener Alleinnutzung**; im Zweifel bleibt
-sie stehen, mit Hinweis. Die Beweislast liegt bei jpm, nicht beim Nutzer.
-Steht die Koordinate gar nicht in dieser pom, wird das klar benannt statt geschwiegen —
-etwa „kommt transitiv über spring-boot-starter-web; zum Ausschließen brauchst du eine
-`<exclusion>`, die macht jpm nicht". Ein bloßes „nicht gefunden" wirkt kaputt, obwohl es
-korrekt wäre.
+**`remove`** — removes the `<dependency>` block. A property orphaned by that removal is removed
+along with it, but **only when sole use across the reactor has been proven**; in doubt it stays,
+with a note. The burden of proof lies with jpm, not with the user.
+If the coordinate is not in this POM at all, that is stated plainly rather than passed over in
+silence — for example "it arrives transitively via spring-boot-starter-web; to exclude it you
+need an `<exclusion>`, which jpm does not manage". A bare "not found" looks broken even though
+it would be correct.
 
-**`update`** — Ohne Argument im TTY interaktive Auswahl aus der `outdated`-Liste, ohne TTY
-nur mit explizitem `--all`. Default-Sprunggrenze `--minor`, `--major` opt-in, mit
-ehrlichem Hinweis auf die SemVer-Heuristik (ADR-0002). Hängt die Version an einer
-geteilten Property, wird vor dem Anheben gezeigt, wer sonst noch betroffen ist.
-Verwaltete Dependencies werden nie einzeln angehoben — jpm meldet stattdessen das
-verwaltende Maven-BOM als das, was anzuheben wäre (ADR-0003).
+**`update`** — with no argument, an interactive selection from the `outdated` list on a TTY;
+without a TTY only with an explicit `--all`. The default jump limit is `--minor`, `--major` is
+opt-in, with an honest note about the SemVer heuristic (ADR-0002). If the version hangs off a
+shared property, everyone else affected is shown before the bump.
+Managed dependencies are never bumped individually — instead jpm reports the managing Maven BOM
+as the thing that would have to move (ADR-0003).
 
-**`search`** — Tabelle aus Koordinate, neuester stabiler Version und Versionsanzahl
-(grober Reifeindikator; ein Download-Ranking gibt die öffentliche API nicht her).
-Im TTY nummeriert mit direkter Auswahl, die unmittelbar in `add` übergeht — der Moment, in
-dem sich das Werkzeug wirklich wie npm anfühlt. Ranking unverändert von Central übernehmen:
-jede eigene Umsortierung ohne Download-Zahlen wäre Raterei mit selbstbewusster Fassade.
-Default 20 Treffer.
+**`search`** — a table of coordinate, latest stable version and version count (a crude maturity
+signal; the public API offers no download ranking). On a TTY the entries are numbered and a
+selection flows straight into `add` — the moment the tool genuinely feels like npm. Ranking is
+taken from Central unchanged: any re-sorting of our own without download figures would be
+guesswork wearing a confident face. 20 hits by default.
 
 ---
 
-## 6. Architektur
+## 6. Architecture
 
-Der wichtigste Schnitt liegt zwischen **Bytes** und **Semantik**:
+The most important seam runs between **bytes** and **semantics**:
 
-| jpm-Modul | Verantwortung |
+| jpm module | Responsibility |
 |---|---|
-| `cli` | picocli-Befehle, TTY-Erkennung, Formatierung, Exit-Codes |
-| `pom` | Formaterhaltender XML-Editor. Kennt nur Dateien und Bytes, keine Maven-Semantik |
-| `model` | Effektives Modell über `maven-model-builder`: Parent-Pom, Maven-BOMs, `dependencyManagement`, Properties, Reaktor-Erkennung. Liest nur |
-| `metadata` | `maven-metadata.xml` über den Resolver, Cache, Stabilitätsfilter |
-| `search` | Central-Search-API. Einziges jpm-Modul mit eigenem Backend |
-| `commands` | Orchestriert die obigen zu `add` / `remove` / `outdated` / `update` / `search` |
+| `cli` | picocli commands, TTY detection, formatting, exit codes |
+| `pom` | The format-preserving XML editor. Knows files and bytes, no Maven semantics |
+| `model` | The effective model via `maven-model-builder`: parent POM, Maven BOMs, `dependencyManagement`, properties, reactor detection. Read-only |
+| `metadata` | `maven-metadata.xml` through the resolver, cache, stability filter |
+| `search` | The Central search API. The only jpm module with a backend of its own |
+| `commands` | Orchestrates the above into `add` / `remove` / `outdated` / `update` / `search` |
 
-`pom` schreibt und weiß nichts über Maven; `model` versteht Maven und schreibt nichts.
-Diese Trennung ist der Grund, warum der riskante Teil — die Formaterhaltung — isoliert und
-byteweise testbar bleibt, ohne Maven mocken zu müssen.
-
----
-
-## 7. Teststrategie
-
-Der riskanteste Teil ist der pom-Editor: er mutiert fremde Quelldateien und muss
-Formatierung, Kommentare, Einrückung und Zeilenenden erhalten.
-
-**Golden-File-Tests sind das Rückgrat**: Korpus aus `input.xml` + `expected.xml`,
-byteweiser Vergleich nach der Operation. Begründung: Der gefürchtete Fehler ist ein
-*Byte*-Fehler — verschobene Einrückung, geschluckter Kommentar, umgeschriebene Kodierung.
-Unit-Tests auf Methodenebene sehen den nie und leuchten grün, während die pom im Diff
-verwüstet aussieht. Man testet, wovor man Angst hat, nicht was leicht zu testen ist.
-
-Der Korpus braucht ausdrücklich die fiesen Fälle:
-
-- Kommentare zwischen `<dependency>`-Blöcken
-- **CRLF-Zeilenenden** (auf Windows der Standardfall, klassischer Formaterhaltungs-Killer)
-- Datei mit **Byte Order Mark** am Anfang
-- leere `<dependencies>` / gar kein `<dependencies>`
-- Multi-Modul-Aggregator
-- Maven-BOM-verwaltetes Spring-Boot-Projekt
-- gemischte Ablageform-Konventionen (Property und inline nebeneinander)
-
-Quelle für den Korpus: echte OSS-poms (Spring Boot, Quarkus, Camel) als Regressionsnetz.
-Property-based/Fuzzing später, wenn der Editor steht.
+`pom` writes and knows nothing about Maven; `model` understands Maven and writes nothing. That
+separation is why the risky part — format preservation — stays isolated and testable byte for
+byte, without mocking Maven.
 
 ---
 
-## 8. Umsetzungsreihenfolge
+## 7. Testing strategy
 
-Die Arbeit ist in 13 Tickets geschnitten, jedes eine **vertikale Scheibe**: ein schmaler,
-aber vollständiger Pfad durch alle Schichten, der für sich vorführbar ist. Die jpm-Module
-aus Abschnitt 6 entstehen dabei nebenbei — sie sind kein eigener Bauabschnitt, weil ein
-fertiges `model`-jpm-Modul ohne Befehl darüber nicht überprüfbar wäre.
+The riskiest part is the POM editor: it mutates somebody else's source files and must preserve
+formatting, comments, indentation and line endings.
 
-Die Tickets sind [GitHub Issues](https://github.com/lxwtmn/jpm/issues), nummeriert so, dass
-jeder Blocker eine kleinere Nummer hat. Die Blocking-Kanten liegen zusätzlich als native
-GitHub-Issue-Dependencies vor, sind also in der Oberfläche sichtbar und maschinell
-abfragbar.
+**Golden-file tests are the backbone**: a corpus of `input.xml` + `expected.xml`, compared byte
+for byte after the operation. The reasoning: the failure you fear is a *byte* failure — shifted
+indentation, a swallowed comment, a rewritten encoding. Unit tests at method level never see it
+and shine green while the POM looks ransacked in the diff. Test what you are afraid of, not what
+is easy to test.
+
+The corpus explicitly needs the nasty cases:
+
+- comments between `<dependency>` blocks
+- **CRLF line endings** (the default on Windows and a classic format-preservation killer)
+- a file with a **byte order mark** at the start
+- an empty `<dependencies>` / no `<dependencies>` at all
+- a multi-module aggregator
+- a Maven-BOM-managed Spring Boot project
+- mixed version-placement conventions (property and inline side by side)
+
+Corpus source: real open-source POMs (Spring Boot, Quarkus, Camel) as a regression net.
+Property-based testing and fuzzing later, once the editor stands.
+
+---
+
+## 8. Implementation order
+
+The work is cut into 13 tickets, each a **vertical slice**: a narrow but complete path through
+every layer, demonstrable on its own. The jpm modules from section 6 emerge along the way —
+they are not a build phase of their own, because a finished `model` jpm module with no command
+above it could not be verified.
+
+The tickets are [GitHub issues](https://github.com/lxwtmn/jpm/issues), numbered so that every
+blocker carries a lower number. The blocking edges also exist as native GitHub issue
+dependencies, so they are visible in the UI and queryable.
 
 | Issue | Ticket | Blocked by |
 |---|---|---|
-| [#1](https://github.com/lxwtmn/jpm/issues/1) | Lauffähiges Skelett mit `jpm --version` | — |
-| [#2](https://github.com/lxwtmn/jpm/issues/2) | `jpm add` mit exakter Version in eine Single-Modul-pom | #1 |
-| [#3](https://github.com/lxwtmn/jpm/issues/3) | Neueste stabile Version auflösen | #2 |
-| [#4](https://github.com/lxwtmn/jpm/issues/4) | Ablageform an die Projektkonvention anpassen | #2 |
-| [#5](https://github.com/lxwtmn/jpm/issues/5) | Scope-Flags und interaktiver Vertrag | #2 |
-| [#6](https://github.com/lxwtmn/jpm/issues/6) | Effektives Modell und Maven-BOM-Awareness | #3 |
-| [#7](https://github.com/lxwtmn/jpm/issues/7) | Zielbestimmung im Reaktor | #5, #6 |
+| [#1](https://github.com/lxwtmn/jpm/issues/1) | Runnable skeleton with `jpm --version` | — |
+| [#2](https://github.com/lxwtmn/jpm/issues/2) | `jpm add` with an exact version into a single-module POM | #1 |
+| [#3](https://github.com/lxwtmn/jpm/issues/3) | Resolve the latest stable version | #2 |
+| [#4](https://github.com/lxwtmn/jpm/issues/4) | Match the project's version-placement convention | #2 |
+| [#5](https://github.com/lxwtmn/jpm/issues/5) | Scope flags and the interactive contract | #2 |
+| [#6](https://github.com/lxwtmn/jpm/issues/6) | Effective model and Maven BOM awareness | #3 |
+| [#7](https://github.com/lxwtmn/jpm/issues/7) | Target selection in a reactor | #5, #6 |
 | [#8](https://github.com/lxwtmn/jpm/issues/8) | `jpm remove` | #4, #7 |
 | [#9](https://github.com/lxwtmn/jpm/issues/9) | `jpm outdated` | #3, #6 |
 | [#10](https://github.com/lxwtmn/jpm/issues/10) | `jpm update` | #4, #9 |
 | [#11](https://github.com/lxwtmn/jpm/issues/11) | `jpm search` | #3, #5 |
-| [#12](https://github.com/lxwtmn/jpm/issues/12) | `--json` für `outdated` und `search` | #9, #11 |
-| [#13](https://github.com/lxwtmn/jpm/issues/13) | native-image statt Fat-JAR | #12 |
+| [#12](https://github.com/lxwtmn/jpm/issues/12) | `--json` for `outdated` and `search` | #9, #11 |
+| [#13](https://github.com/lxwtmn/jpm/issues/13) | native-image instead of a fat JAR | #12 |
 
-Das Riskanteste bleibt vorn: Issue #2 enthält den formaterhaltenden pom-Editor samt
-Golden-File-Korpus (Abschnitt 7), nur eben end-to-end statt isoliert. Der Korpus wächst
-danach mit jedem Ticket, das eine neue pom-Situation einführt — Properties in #4,
-Maven-BOMs in #6, Aggregator-Poms in #7.
+The riskiest part stays up front: issue #2 contains the format-preserving POM editor together
+with the golden-file corpus (section 7), just end to end rather than in isolation. The corpus
+then grows with every ticket that introduces a new POM situation — properties in #4, Maven BOMs
+in #6, aggregator POMs in #7.
 
 ---
 
-## 9. Offene Punkte
+## 9. Open points
 
-- Gradle-Phase 2 verdient eine eigene Design-Befragung, bevor sie beginnt
+- Gradle phase 2 deserves a design interrogation of its own before it starts
 
-### Erledigt
+### Settled
 
-- **Lizenz: Apache-2.0.** Passend zu den gebündelten Abhängigkeiten (Maven Resolver,
-  `maven-model-builder`, picocli sind sämtlich Apache-2.0), mit ausdrücklichem
-  Patentgrant für den Firmeneinsatz aus A-2, und die im Java-Ökosystem unauffällige Wahl.
-  Folge für den Build: Apache-2.0 §4 verlangt, dass `LICENSE`- und `NOTICE`-Einträge der
-  eingebundenen Artefakte beim Zusammenschütten des Fat-JAR erhalten bleiben statt sich
-  gegenseitig zu überschreiben — siehe Issue #1.
-- **Namensprüfung `jpm`.** Beide historischen Kollisionen (jpm4j, npm-Paket `jpm`) sind
-  tot; `lxwtmn/jpm` war frei.
+- **Licence: Apache-2.0.** It matches the bundled dependencies (Maven Resolver,
+  `maven-model-builder` and picocli are all Apache-2.0), carries an explicit patent grant for
+  the corporate use in A-2, and is the unsurprising choice in the Java ecosystem.
+  Consequence for the build: Apache-2.0 §4 requires that the `LICENSE` and `NOTICE` entries of
+  bundled artifacts survive the shading rather than overwrite one another. Note that
+  `ApacheLicenseResourceTransformer` is unsuitable for this — measured, it discards *all*
+  LICENSE entries, including our own.
+- **Name check `jpm`.** Both historical collisions (jpm4j, the npm package `jpm`) are dead;
+  `lxwtmn/jpm` was free.

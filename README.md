@@ -1,46 +1,45 @@
 # jpm
 
-Ein Kommandozeilenwerkzeug, das Maven-Dependencies verwaltet, ohne dass man `pom.xml` von
-Hand editiert:
+A command-line tool for managing Maven dependencies without editing `pom.xml` by hand:
 
 ```
 jpm add com.fasterxml.jackson.core:jackson-databind
 ```
 
-statt Browser, mvnrepository.com, Copy-Paste und XML.
+instead of a browser, mvnrepository.com, copy-paste and XML.
 
-Die **Bedienung** ist an npm angelehnt, das **Datenmodell** ausdrücklich nicht: die
-`pom.xml` bleibt die einzige Wahrheit, jpm editiert sie formaterhaltend in-place. Es gibt
-kein `jpm.json`, kein Lockfile und kein `node_modules`-Äquivalent.
+The **interface** takes after npm; the **data model** deliberately does not. `pom.xml` remains
+the single source of truth, and jpm edits it in place while preserving its formatting. There is
+no `jpm.json`, no lock file and no equivalent of `node_modules`.
 
-**Status:** Das CLI-Skelett steht — `jpm --version` und `jpm --help` laufen. Die
-Dependency-Befehle folgen entlang der [Issues](https://github.com/lxwtmn/jpm/issues).
+**Status:** the CLI skeleton is in place — `jpm --version` and `jpm --help` work. The dependency
+commands follow along the [issues](https://github.com/lxwtmn/jpm/issues).
 
 ```
 mvn verify
 bin/jpm --version
 ```
 
-## Dokumentation
+## Documentation
 
-- **[DESIGN.md](./DESIGN.md)** — vollständige Spezifikation: Befehlssatz, Architektur,
-  Teststrategie, Nicht-Ziele, Umsetzungsreihenfolge
-- **[CONTEXT.md](./CONTEXT.md)** — Glossar der Domänenbegriffe
-- **[docs/adr/](./docs/adr/)** — Architekturentscheidungen mit Begründung
+- **[DESIGN.md](./DESIGN.md)** — the full specification: command set, architecture, testing
+  strategy, non-goals, implementation order
+- **[CONTEXT.md](./CONTEXT.md)** — glossary of domain terms
+- **[docs/adr/](./docs/adr/)** — architecture decisions with their rationale
 
-## Lizenz
+## Licence
 
 [Apache-2.0](./LICENSE) — Copyright 2026 Alexander Wittmann Consulting GmbH.
-Gebündelte Abhängigkeiten und ihre Hinweise siehe [NOTICE](./NOTICE).
+Bundled dependencies and their notices are listed in [NOTICE](./NOTICE).
 
-## Architekturentscheidungen
+## Architecture decisions
 
-| ADR | Entscheidung |
+| ADR | Decision |
 |---|---|
-| [0001](./docs/adr/0001-pom-bleibt-kanonisch.md) | `pom.xml` bleibt kanonisch — jpm ist Editor, nicht Besitzer |
-| [0002](./docs/adr/0002-exakte-versionen-keine-ranges.md) | Exakte Versionen in der pom — keine Ranges, kein `^`/`~` |
-| [0003](./docs/adr/0003-effektives-modell-statt-dateitext.md) | Entscheidungen fallen gegen das effektive Modell |
-| [0004](./docs/adr/0004-java-mit-eingebettetem-maven-resolver.md) | Java mit eingebettetem Maven Resolver |
-| [0005](./docs/adr/0005-maven-zuerst-gradle-ueber-version-catalogs.md) | Maven zuerst; Gradle beginnt bei Version Catalogs |
-| [0006](./docs/adr/0006-schreiben-ohne-bestaetigung.md) | Schreibende Befehle fragen nicht und legen kein Backup an |
-| [0007](./docs/adr/0007-exit-code-vertrag.md) | Informationsbefehle scheitern nie an ihrem eigenen Inhalt |
+| [0001](./docs/adr/0001-pom-stays-canonical.md) | `pom.xml` stays canonical — jpm is an editor, not an owner |
+| [0002](./docs/adr/0002-exact-versions-no-ranges.md) | Exact versions in the POM — no ranges, no `^`/`~` |
+| [0003](./docs/adr/0003-effective-model-over-file-text.md) | Decisions are made against the effective model |
+| [0004](./docs/adr/0004-java-with-embedded-maven-resolver.md) | Java with an embedded Maven Resolver |
+| [0005](./docs/adr/0005-maven-first-gradle-via-version-catalogs.md) | Maven first; Gradle starts at version catalogs |
+| [0006](./docs/adr/0006-write-without-confirmation.md) | Writing commands do not ask and leave no backup |
+| [0007](./docs/adr/0007-exit-code-contract.md) | Informational commands never fail over their own content |

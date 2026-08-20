@@ -1,74 +1,73 @@
 # Issue tracker: GitHub
 
-Issues für dieses Repo leben als GitHub Issues. Alle Operationen laufen über die
-`gh`-CLI, die das Repo aus `git remote -v` ableitet, wenn sie im Klon ausgeführt wird.
+Issues for this repository live as GitHub issues. Every operation goes through the `gh` CLI,
+which infers the repository from `git remote -v` when run inside the clone.
 
-## Konventionen
+## Conventions
 
-- **Issue anlegen**: `gh issue create --title "..." --body "..."` (Heredoc für mehrzeilige Rümpfe)
-- **Issue lesen**: `gh issue view <nummer> --comments`
-- **Issues auflisten**: `gh issue list --state open --json number,title,body,labels,comments`
-- **Kommentieren**: `gh issue comment <nummer> --body "..."`
-- **Labels setzen/entfernen**: `gh issue edit <nummer> --add-label "..."` / `--remove-label "..."`
-- **Schließen**: `gh issue close <nummer> --comment "..."`
+- **Create an issue**: `gh issue create --title "..." --body "..."` (use `--body-file` for
+  multi-line bodies)
+- **Read an issue**: `gh issue view <number> --comments`
+- **List issues**: `gh issue list --state open --json number,title,body,labels,comments`
+- **Comment**: `gh issue comment <number> --body "..."`
+- **Add/remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
+- **Close**: `gh issue close <number> --comment "..."`
 
-## Blockierende Kanten
+## Blocking edges
 
-Blocking wird über **GitHubs native Issue-Dependencies** ausgedrückt — das ist die
-kanonische, in der Oberfläche sichtbare Darstellung:
+Blocking is expressed through **GitHub's native issue dependencies** — the canonical
+representation, visible in the UI:
 
 ```
-gh api --method POST repos/<owner>/<repo>/issues/<kind>/dependencies/blocked_by \
-  -F issue_id=<datenbank-id-des-blockers>
+gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by \
+  -F issue_id=<database-id-of-the-blocker>
 ```
 
-Die `issue_id` ist die numerische **Datenbank-ID** des Blockers
-(`gh api repos/<owner>/<repo>/issues/<n> --jq .id`), **nicht** die `#nummer` und nicht die
-`node_id`. GitHub meldet offene Blocker unter `issue_dependencies_summary.blocked_by`.
+The `issue_id` is the blocker's numeric **database id**
+(`gh api repos/<owner>/<repo>/issues/<n> --jq .id`) — **not** the `#number` and not the
+`node_id`. GitHub reports open blockers under `issue_dependencies_summary.blocked_by`.
 
-Zusätzlich trägt jeder Issue-Rumpf einen `## Blocked by`-Abschnitt mit `#`-Referenzen —
-redundant zur API, aber im Rumpf lesbar, auch wenn Dependencies einmal nicht verfügbar sind.
+Every issue body additionally carries a `## Blocked by` section with `#` references —
+redundant with the API, but readable in the body even where dependencies are unavailable.
 
-## Pull requests als Triage-Fläche
+## Pull requests as a triage surface
 
-**PRs as a request surface: no.** _(Auf `yes` setzen, wenn externe PRs wie Feature Requests
-behandelt werden sollen; `/triage` liest dieses Flag.)_
+**PRs as a request surface: no.** _(Set to `yes` if external PRs should be treated like feature
+requests; `/triage` reads this flag.)_
 
-## Wo die Spezifikation liegt
+## Where the specification lives
 
-**Abweichung von der Standardkonvention.** Die Vorlage sieht Specs als Issues vor. In
-diesem Repo ist die Spezifikation [`DESIGN.md`](../../DESIGN.md) im Wurzelverzeichnis,
-ergänzt um die Architekturentscheidungen unter [`docs/adr/`](../adr/).
+**A deviation from the default convention.** The template expects specs to live as issues. In
+this repository the specification is [`DESIGN.md`](../../DESIGN.md) at the root, together with
+the architecture decisions under [`docs/adr/`](../adr/).
 
-Lege **keine** zweite Spezifikation als Issue an — sie würde von `DESIGN.md` wegdriften.
-Issues verweisen stattdessen auf `DESIGN.md` und die passenden ADRs.
+Do **not** create a second specification as an issue — it would drift away from `DESIGN.md`.
+Issues reference `DESIGN.md` and the relevant ADRs instead.
 
-## Nummerierung und Reihenfolge
+## Numbering and order
 
-Tickets werden in Abhängigkeitsreihenfolge angelegt: **jeder Blocker bekommt eine kleinere
-Issue-Nummer** als das Ticket, das er blockiert. Das ist nicht nur Kosmetik — die
-Nummerierung ist damit eine topologische Sortierung, und ein Zyklus im Abhängigkeitsgraph
-fällt beim Anlegen auf.
+Tickets are created in dependency order: **every blocker receives a lower issue number** than
+the ticket it blocks. This is not cosmetic — the numbering is a topological sort, so a cycle in
+the dependency graph shows up while the issues are being created.
 
-## Wenn eine Skill sagt „publish to the issue tracker"
+## When a skill says "publish to the issue tracker"
 
-Ein GitHub Issue anlegen.
+Create a GitHub issue.
 
-## Wenn eine Skill sagt „fetch the relevant ticket"
+## When a skill says "fetch the relevant ticket"
 
-`gh issue view <nummer> --comments` ausführen.
+Run `gh issue view <number> --comments`.
 
-## Wayfinding-Operationen
+## Wayfinding operations
 
-Genutzt von `/wayfinder`. Die **Map** ist ein einzelnes Issue mit **Kind**-Issues als
-Tickets.
+Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets.
 
-- **Map**: ein Issue mit Label `wayfinder:map`, Rumpf enthält Notes / Decisions-so-far / Fog
-- **Kind-Ticket**: als GitHub-Sub-Issue an die Map gehängt; wo Sub-Issues nicht aktiv sind,
-  Task-Liste im Map-Rumpf plus `Part of #<map>` oben im Kind. Labels: `wayfinder:<typ>`
-  (`research`/`prototype`/`grilling`/`task`).
-- **Blocking**: wie oben, native Dependencies.
-- **Frontier**: offene Kinder ohne offenen Blocker und ohne Assignee; erstes in Map-Reihenfolge gewinnt.
-- **Claim**: `gh issue edit <n> --add-assignee @me` — der erste Schreibvorgang der Sitzung.
-- **Resolve**: `gh issue comment`, dann `gh issue close`, dann Kontextzeiger in die
-  Decisions-so-far der Map.
+- **Map**: an issue labelled `wayfinder:map`, whose body holds Notes / Decisions-so-far / Fog
+- **Child ticket**: attached to the map as a GitHub sub-issue; where sub-issues are disabled,
+  a task list in the map body plus `Part of #<map>` at the top of the child. Labels:
+  `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`).
+- **Blocking**: native dependencies, as above.
+- **Frontier**: open children with no open blocker and no assignee; first in map order wins.
+- **Claim**: `gh issue edit <n> --add-assignee @me` — the session's first write.
+- **Resolve**: `gh issue comment`, then `gh issue close`, then append a context pointer to the
+  map's Decisions-so-far.

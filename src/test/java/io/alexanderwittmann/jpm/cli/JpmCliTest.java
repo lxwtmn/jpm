@@ -9,13 +9,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests an der Grenze, die das Launcher-Skript aufruft: Argumente und Ausgabeströme hinein,
- * Exit-Code heraus. Beobachtet wird ausschließlich, was der Nutzer sieht und was die Shell
- * bekommt — nie picocli-Interna.
+ * Tests at the boundary the launcher script calls: arguments and output streams in, exit code
+ * out. Only what the user sees and what the shell receives is observed — never picocli
+ * internals.
  *
- * <p>Die erwarteten Exit-Codes stehen bewusst als Zahlen im Test und nicht als {@code ExitCode}
- * -Konstanten: ADR-0007 legt die Zahlen fest, also darf der Test sie nicht aus demselben Code
- * ableiten, den er prüft — sonst bliebe er grün, wenn jemand die Konstante ändert.
+ * <p>The expected exit codes appear as literal numbers rather than {@code ExitCode} constants on
+ * purpose: ADR-0007 fixes those numbers, so the test must not derive them from the very code it
+ * checks — otherwise it would stay green if somebody changed the constant.
  */
 class JpmCliTest {
 
@@ -34,7 +34,7 @@ class JpmCliTest {
   }
 
   @Test
-  @DisplayName("--version nennt Name und Version und beendet mit 0")
+  @DisplayName("--version states the name and the version and exits with 0")
   void versionPrintsNameAndVersion() {
     var result = run("--version");
 
@@ -43,7 +43,7 @@ class JpmCliTest {
   }
 
   @Test
-  @DisplayName("--help zeigt Aufrufzeile, Zweck und die verfügbaren Optionen")
+  @DisplayName("--help shows the usage line, the purpose and the available options")
   void helpShowsUsageAndOptions() {
     var result = run("--help");
 
@@ -57,22 +57,22 @@ class JpmCliTest {
   }
 
   @Test
-  @DisplayName("Ein unbekannter Befehl meldet ihn auf stderr und beendet mit 1")
+  @DisplayName("An unknown command is reported on stderr and exits with 1")
   void unknownCommandFailsWithExitCodeOne() {
     var result = run("isntall");
 
     assertThat(result.exitCode()).isEqualTo(1);
     assertThat(result.err()).contains("isntall");
-    // Fehler gehören nach stderr: stdout muss auswertbar bleiben (--json ab Issue #12).
+    // Failures belong on stderr: stdout has to stay parseable (--json from issue #12 onwards).
     assertThat(result.out()).isEmpty();
   }
 
   @Test
-  @DisplayName("Ohne Argumente zeigt jpm die Hilfe und beendet mit 0")
+  @DisplayName("Without arguments jpm shows the help and exits with 0")
   void noArgumentsShowsHelp() {
     var result = run();
 
-    // Kein Befehl ist keine Fehleingabe, sondern die Frage „was kannst du?".
+    // No command is not malformed input but the question "what can you do?".
     assertThat(result.exitCode()).isEqualTo(0);
     assertThat(result.out()).contains("Usage:").contains("jpm");
     assertThat(result.err()).isEmpty();

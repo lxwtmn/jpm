@@ -17,66 +17,66 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Prüft das gebaute Fat-JAR als Datei — also das, was die Unit-Tests strukturell nicht sehen
- * können: dass das Artefakt wirklich startet, dass die gemeldete Version die gebaute ist, dass
- * die Lizenzhinweise mitreisen (Apache-2.0 §4) und dass der Exit-Code-Vertrag auch dann hält,
- * wenn das Artefakt selbst defekt ist.
+ * Exercises the built fat JAR as a file — that is, everything the unit tests structurally
+ * cannot see: that the artifact really starts, that the version it reports is the version that
+ * was built, that the licence notices travel with it (Apache-2.0 §4), and that the exit code
+ * contract holds even when the artifact itself is broken.
  */
 class JpmDistributionIT {
 
   private static final Path JAR = Path.of("target", "jpm.jar");
 
-  /** Vom Build durchgereicht, damit der Test die Version nicht aus dem Code ableiten muss. */
+  /** Passed in by the build so the test need not derive the version from the code. */
   private static final String EXPECTED_VERSION = System.getProperty("jpm.expected.version");
 
   record Result(int exitCode, String out, String err) {}
 
   @BeforeAll
   static void preconditions() {
-    assertThat(JAR).as("Fat-JAR aus dem Packaging").exists();
+    assertThat(JAR).as("fat JAR from the packaging phase").exists();
     assertThat(EXPECTED_VERSION)
-        .as("Systemeigenschaft jpm.expected.version aus der Failsafe-Konfiguration")
+        .as("system property jpm.expected.version from the Failsafe configuration")
         .isNotBlank();
   }
 
   @Test
-  @DisplayName("Das Fat-JAR startet und meldet genau die gebaute Version")
+  @DisplayName("The fat JAR starts and reports exactly the version that was built")
   void jarReportsBuiltVersion() throws Exception {
     var java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
 
     var result = execute(List.of(java, "-jar", JAR.toString(), "--version"));
 
-    assertThat(result.exitCode()).as("stderr war: %s", result.err()).isEqualTo(0);
-    // Nicht bloß „irgendeine Versionsform", sondern die aus project.version gefilterte.
+    assertThat(result.exitCode()).as("stderr was: %s", result.err()).isEqualTo(0);
+    // Not merely "some version-shaped string", but the one filtered from project.version.
     assertThat(result.out().strip()).isEqualTo("jpm " + EXPECTED_VERSION);
   }
 
   @Test
-  @DisplayName("Das Fat-JAR führt Lizenz und Hinweise mit, erzeugt durch den Shade-Transformer")
+  @DisplayName("The fat JAR carries licence and notices, produced by the shade transformer")
   void jarCarriesLicenseAndNotice() throws IOException {
     try (var jar = new JarFile(JAR.toFile())) {
       assertThat(readEntry(jar, "META-INF/LICENSE"))
-          .as("Apache-2.0 §4 verlangt die Lizenz im Artefakt")
+          .as("Apache-2.0 §4 requires the licence inside the artifact")
           .contains("Apache License")
           .contains("Version 2.0")
           .contains("Alexander Wittmann Consulting GmbH");
 
       var notice = readEntry(jar, "META-INF/NOTICE");
-      // Dieser Kopf stammt ausschließlich vom ApacheNoticeResourceTransformer. Ohne die
-      // Zusicherung bliebe der Test grün, wenn der Transformer entfernt würde — die Datei
-      // käme dann still allein aus dem <resources>-Block.
+      // This header can only come from the ApacheNoticeResourceTransformer. Without asserting
+      // it, the test would stay green if the transformer were removed — the file would then
+      // silently come from the <resources> block alone.
       assertThat(notice)
-          .as("beweist, dass der Shade-Transformer tatsächlich läuft")
+          .as("proves the shade transformer actually runs")
           .contains("section 4d of The Apache License");
       assertThat(notice)
-          .as("der eigene Hinweistext überlebt das Zusammenführen")
+          .as("our own notice text survives the merge")
           .contains("jpm")
           .contains("picocli");
     }
   }
 
   @Test
-  @DisplayName("Ein defektes Artefakt meldet den Fehler und hält den Exit-Code-Vertrag")
+  @DisplayName("A broken artifact reports the failure and honours the exit code contract")
   void brokenArtifactReportsErrorInsteadOfStackTrace(@TempDir Path tempDir) throws Exception {
     var broken = tempDir.resolve("jpm-broken.jar");
     copyJarWithout(JAR, broken, "jpm.properties");
@@ -84,14 +84,14 @@ class JpmDistributionIT {
 
     var result = execute(List.of(java, "-jar", broken.toString(), "--version"));
 
-    assertThat(result.exitCode()).as("ADR-0007: Fehler ist 1, nicht der JVM-Default").isEqualTo(1);
+    assertThat(result.exitCode()).as("ADR-0007: failure is 1, not the JVM default").isEqualTo(1);
     assertThat(result.err()).contains("jpm.properties");
-    assertThat(result.err()).as("ein Stacktrace ist keine Nutzermeldung").doesNotContain("\tat ");
+    assertThat(result.err()).as("a stack trace is not a user message").doesNotContain("\tat ");
     assertThat(result.out()).isEmpty();
   }
 
   @Test
-  @DisplayName("Der Launcher startet jpm und reicht den Exit-Code durch")
+  @DisplayName("The launcher starts jpm and passes the exit code through")
   void launcherRunsJpmAndPropagatesExitCode() throws Exception {
     var windows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("win");
     List<String> version =
@@ -104,11 +104,11 @@ class JpmDistributionIT {
             : List.of("sh", "bin/jpm", "isntall");
 
     var ok = execute(version);
-    assertThat(ok.exitCode()).as("stderr war: %s", ok.err()).isEqualTo(0);
+    assertThat(ok.exitCode()).as("stderr was: %s", ok.err()).isEqualTo(0);
     assertThat(ok.out()).contains("jpm " + EXPECTED_VERSION);
 
     var failure = execute(unknown);
-    assertThat(failure.exitCode()).as("der Launcher darf den Code nicht schlucken").isEqualTo(1);
+    assertThat(failure.exitCode()).as("the launcher must not swallow the code").isEqualTo(1);
   }
 
   private static Result execute(List<String> command) throws Exception {
@@ -120,13 +120,13 @@ class JpmDistributionIT {
 
   private static String readEntry(JarFile jar, String name) throws IOException {
     var entry = jar.getEntry(name);
-    assertThat(entry).as("Eintrag %s im Fat-JAR", name).isNotNull();
+    assertThat(entry).as("entry %s inside the fat JAR", name).isNotNull();
     try (var in = jar.getInputStream(entry)) {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 
-  /** Kopiert das JAR ohne einen Eintrag, um ein fehlerhaft gebautes Artefakt nachzustellen. */
+  /** Copies the JAR without one entry, to reproduce an incorrectly built artifact. */
   private static void copyJarWithout(Path source, Path target, String entryToDrop)
       throws IOException {
     try (var in = new JarFile(source.toFile());

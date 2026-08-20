@@ -5,9 +5,9 @@ import java.util.Properties;
 import picocli.CommandLine;
 
 /**
- * Liefert die Version aus {@code jpm.properties}, das beim Bau aus {@code project.version}
- * gefiltert wird. Fehlt die Datei, ist das Artefakt fehlerhaft gebaut — dann soll der Aufruf
- * scheitern statt eine Ersatzangabe zu erfinden.
+ * Supplies the version from {@code jpm.properties}, which the build filters from
+ * {@code project.version}. If the file is missing the artifact was built incorrectly, and the
+ * invocation should fail rather than invent a substitute.
  */
 final class JpmVersionProvider implements CommandLine.IVersionProvider {
 

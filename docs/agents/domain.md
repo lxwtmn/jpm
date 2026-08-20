@@ -1,20 +1,19 @@
-# Domain-Dokumentation
+# Domain documentation
 
-Wie die Engineering-Skills die Domänendokumentation dieses Repos lesen sollen, bevor sie
-den Code erkunden.
+How the engineering skills should consume this repository's domain documentation before
+exploring the code.
 
-Dieses Repo ist **single-context**: eine `CONTEXT.md` und ein `docs/adr/` im
-Wurzelverzeichnis.
+This repository is **single-context**: one `CONTEXT.md` and one `docs/adr/` at the root.
 
-## Vor dem Erkunden lesen
+## Read before exploring
 
-- **[`CONTEXT.md`](../../CONTEXT.md)** im Wurzelverzeichnis — das Glossar
-- **[`docs/adr/`](../adr/)** — die ADRs, die den Bereich berühren, in dem gearbeitet wird
+- **[`CONTEXT.md`](../../CONTEXT.md)** at the root — the glossary
+- **[`docs/adr/`](../adr/)** — the ADRs touching the area being worked on
 
-Es gibt kein `CONTEXT-MAP.md`; sollte eines entstehen, ist das Repo multi-context geworden
-und die Struktur ändert sich entsprechend.
+There is no `CONTEXT-MAP.md`; should one appear, the repository has become multi-context and
+the structure changes accordingly.
 
-## Dateistruktur
+## File structure
 
 ```
 /
@@ -23,30 +22,29 @@ und die Struktur ändert sich entsprechend.
 ├── docs/
 │   ├── adr/
 │   └── agents/
-└── .scratch/<effort>/issues/
+└── src/
 ```
 
-## Das Vokabular des Glossars verwenden
+## Use the glossary's vocabulary
 
-Benennt eine Ausgabe ein Domänenkonzept — in einem Tickettitel, einem Refactoring-Vorschlag,
-einer Hypothese, einem Testnamen —, gilt der Begriff so, wie `CONTEXT.md` ihn definiert.
-Kein Abdriften in Synonyme, die das Glossar unter `_Avoid_` ausschließt.
+When output names a domain concept — in an issue title, a refactoring proposal, a hypothesis, a
+test name — the term is used as `CONTEXT.md` defines it. No drifting into synonyms the glossary
+lists under `_Avoid_`.
 
-**Besonders wichtig in diesem Repo:** Drei Begriffe sind doppelt belegt und werden **nie
-unqualifiziert** verwendet, auch nicht in Bezeichnern oder Commit-Nachrichten:
+**Particularly important in this repository:** three words carry two meanings and are **never**
+used unqualified, not even in identifiers or commit messages:
 
-- **BOM** → entweder *Maven-BOM* oder *Byte Order Mark*
-- **Modul** → entweder *Maven-Modul* (im Reaktor des Nutzers) oder *jpm-Modul* (in jpms Code)
-- **Repository** → entweder *Artefakt-Repository* oder *Git-Repository*
+- **BOM** → either *Maven BOM* or *byte order mark*
+- **Module** → either *Maven module* (in the user's reactor) or *jpm module* (in jpm's code)
+- **Repository** → either *artifact repository* or *Git repository*
 
-Fehlt ein benötigter Begriff im Glossar, ist das ein Signal: entweder wird Sprache
-erfunden, die das Projekt nicht benutzt (überdenken), oder es gibt eine echte Lücke (für
-`/domain-modeling` notieren).
+If a needed term is missing from the glossary, that is a signal: either language is being
+invented that the project does not use (reconsider), or there is a genuine gap (note it for
+`/domain-modeling`).
 
-## Widersprüche zu ADRs benennen
+## Surface contradictions with ADRs
 
-Widerspricht eine Ausgabe einem bestehenden ADR, muss das ausdrücklich gesagt werden statt
-still übergangen:
+If output contradicts an existing ADR, say so explicitly rather than overriding it silently:
 
-> _Widerspricht ADR-0003 (Entscheidungen fallen gegen das effektive Modell) — aber
-> wiederaufzumachen, weil…_
+> _Contradicts ADR-0003 (decisions are made against the effective model) — but worth reopening
+> because…_

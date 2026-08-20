@@ -1,18 +1,18 @@
 package io.alexanderwittmann.jpm.cli;
 
 /**
- * Der Exit-Code-Vertrag aus ADR-0007. Informationsbefehle scheitern nie an ihrem eigenen
- * Inhalt — {@code outdated} liefert auch dann {@link #SUCCESS}, wenn es Updates gefunden hat.
+ * The exit code contract from ADR-0007. Informational commands never fail over their own
+ * content — {@code outdated} returns {@link #SUCCESS} even when it found updates.
  */
 final class ExitCode {
 
-  /** Erfolg. */
+  /** Success. */
   static final int SUCCESS = 0;
 
-  /** Fehler. */
+  /** Failure. */
   static final int FAILURE = 1;
 
-  /** Abbruch, weil eine Rückfrage nötig gewesen wäre, aber kein Terminal zur Verfügung stand. */
+  /** Aborted because a question would have been necessary but no terminal was available. */
   static final int NEEDS_INPUT = 2;
 
   private ExitCode() {}
