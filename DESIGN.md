@@ -276,29 +276,31 @@ aber vollständiger Pfad durch alle Schichten, der für sich vorführbar ist. Di
 aus Abschnitt 6 entstehen dabei nebenbei — sie sind kein eigener Bauabschnitt, weil ein
 fertiges `model`-jpm-Modul ohne Befehl darüber nicht überprüfbar wäre.
 
-Die Tickets liegen unter [.scratch/jpm-v1/issues/](./.scratch/jpm-v1/issues/), nummeriert
-so, dass jeder Blocker eine kleinere Nummer hat.
+Die Tickets sind [GitHub Issues](https://github.com/lxwtmn/jpm/issues), nummeriert so, dass
+jeder Blocker eine kleinere Nummer hat. Die Blocking-Kanten liegen zusätzlich als native
+GitHub-Issue-Dependencies vor, sind also in der Oberfläche sichtbar und maschinell
+abfragbar.
 
-| # | Ticket | Blocked by |
+| Issue | Ticket | Blocked by |
 |---|---|---|
-| 01 | Lauffähiges Skelett mit `jpm --version` | — |
-| 02 | `jpm add` mit exakter Version in eine Single-Modul-pom | 01 |
-| 03 | Neueste stabile Version auflösen | 02 |
-| 04 | Ablageform an die Projektkonvention anpassen | 02 |
-| 05 | Scope-Flags und interaktiver Vertrag | 02 |
-| 06 | Effektives Modell und Maven-BOM-Awareness | 03 |
-| 07 | Zielbestimmung im Reaktor | 05, 06 |
-| 08 | `jpm remove` | 04, 07 |
-| 09 | `jpm outdated` | 03, 06 |
-| 10 | `jpm update` | 04, 09 |
-| 11 | `jpm search` | 03, 05 |
-| 12 | `--json` für `outdated` und `search` | 09, 11 |
-| 13 | native-image statt Fat-JAR | 12 |
+| [#1](https://github.com/lxwtmn/jpm/issues/1) | Lauffähiges Skelett mit `jpm --version` | — |
+| [#2](https://github.com/lxwtmn/jpm/issues/2) | `jpm add` mit exakter Version in eine Single-Modul-pom | #1 |
+| [#3](https://github.com/lxwtmn/jpm/issues/3) | Neueste stabile Version auflösen | #2 |
+| [#4](https://github.com/lxwtmn/jpm/issues/4) | Ablageform an die Projektkonvention anpassen | #2 |
+| [#5](https://github.com/lxwtmn/jpm/issues/5) | Scope-Flags und interaktiver Vertrag | #2 |
+| [#6](https://github.com/lxwtmn/jpm/issues/6) | Effektives Modell und Maven-BOM-Awareness | #3 |
+| [#7](https://github.com/lxwtmn/jpm/issues/7) | Zielbestimmung im Reaktor | #5, #6 |
+| [#8](https://github.com/lxwtmn/jpm/issues/8) | `jpm remove` | #4, #7 |
+| [#9](https://github.com/lxwtmn/jpm/issues/9) | `jpm outdated` | #3, #6 |
+| [#10](https://github.com/lxwtmn/jpm/issues/10) | `jpm update` | #4, #9 |
+| [#11](https://github.com/lxwtmn/jpm/issues/11) | `jpm search` | #3, #5 |
+| [#12](https://github.com/lxwtmn/jpm/issues/12) | `--json` für `outdated` und `search` | #9, #11 |
+| [#13](https://github.com/lxwtmn/jpm/issues/13) | native-image statt Fat-JAR | #12 |
 
-Das Riskanteste bleibt vorn: Ticket 02 enthält den formaterhaltenden pom-Editor samt
+Das Riskanteste bleibt vorn: Issue #2 enthält den formaterhaltenden pom-Editor samt
 Golden-File-Korpus (Abschnitt 7), nur eben end-to-end statt isoliert. Der Korpus wächst
-danach mit jedem Ticket, das eine neue pom-Situation einführt — Properties in 04,
-Maven-BOMs in 06, Aggregator-Poms in 07.
+danach mit jedem Ticket, das eine neue pom-Situation einführt — Properties in #4,
+Maven-BOMs in #6, Aggregator-Poms in #7.
 
 ---
 
