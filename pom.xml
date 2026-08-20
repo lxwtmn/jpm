@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.alexanderwittmann</groupId>
+  <artifactId>jpm</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>jpm</name>
+  <description>Maven-Dependencies verwalten wie mit npm</description>
+  <url>https://github.com/lxwtmn/jpm</url>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Bytecode-Ziel 17 (DESIGN E-1), gebaut auf einem neueren JDK. -->
+    <maven.compiler.release>17</maven.compiler.release>
+
+    <!-- Ablageform nach DESIGN B-2: artifactId.version -->
+    <picocli.version>4.7.7</picocli.version>
+    <junit-jupiter.version>6.1.3</junit-jupiter.version>
+    <assertj-core.version>3.27.7</assertj-core.version>
+    <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+    <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>${picocli.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <!-- jpm.properties braucht ${project.version}, sonst nichts filtern. -->
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>jpm.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>jpm.properties</exclude>
+        </excludes>
+      </resource>
+      <!-- Apache-2.0 §4: Lizenz und Hinweise reisen im Artefakt mit. -->
+      <resource>
+        <directory>${project.basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <filtering>false</filtering>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+      </plugin>
+
+      <!-- Integrationstests prüfen das gebaute Artefakt, laufen also nach dem Packaging. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven-failsafe-plugin.version}</version>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- Damit der Test beweisen kann, dass die gemeldete Version die gebaute ist. -->
+            <jpm.expected.version>${project.version}</jpm.expected.version>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>jpm</finalName>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>io.alexanderwittmann.jpm.cli.Main</mainClass>
+                  <manifestEntries>
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <!--
+                  Kein ApacheLicenseResourceTransformer: nachgemessen verwirft er ALLE
+                  META-INF/LICENSE-Einträge, auch unsere eigene, und das Artefakt käme
+                  ohne Lizenztext heraus. Unsere LICENSE kommt stattdessen über den
+                  <resources>-Block. Kollidierende Lizenzdateien aus Abhängigkeiten
+                  werden erst mit dem Maven Resolver in Issue #3 real.
+                -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+                  <projectName>jpm</projectName>
+                  <organizationName>Alexander Wittmann Consulting GmbH</organizationName>
+                  <organizationURL>https://github.com/lxwtmn/jpm</organizationURL>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

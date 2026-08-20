@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+# Launcher for jpm. Resolves the fat JAR next to this script (../lib) and falls
+# back to the Maven build output (../target) during development.
+set -e
+
+JPM_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+JPM_JAR=""
+for candidate in "$JPM_DIR/../lib/jpm.jar" "$JPM_DIR/../target/jpm.jar"; do
+  if [ -f "$candidate" ]; then
+    JPM_JAR="$candidate"
+    break
+  fi
+done
+
+if [ -z "$JPM_JAR" ]; then
+  echo "jpm: jpm.jar not found (looked in ../lib and ../target)" >&2
+  exit 1
+fi
+
+if [ -n "${JAVA_HOME:-}" ]; then
+  JPM_JAVA="$JAVA_HOME/bin/java"
+else
+  JPM_JAVA="java"
+fi
+
+exec "$JPM_JAVA" -jar "$JPM_JAR" "$@"

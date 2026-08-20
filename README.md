@@ -13,7 +13,13 @@ Die **Bedienung** ist an npm angelehnt, das **Datenmodell** ausdrücklich nicht:
 `pom.xml` bleibt die einzige Wahrheit, jpm editiert sie formaterhaltend in-place. Es gibt
 kein `jpm.json`, kein Lockfile und kein `node_modules`-Äquivalent.
 
-**Status:** Design abgeschlossen, noch kein Code.
+**Status:** Das CLI-Skelett steht — `jpm --version` und `jpm --help` laufen. Die
+Dependency-Befehle folgen entlang der [Issues](https://github.com/lxwtmn/jpm/issues).
+
+```
+mvn verify
+bin/jpm --version
+```
 
 ## Dokumentation
 

@@ -140,8 +140,8 @@ Bewusst ausgeschlossen. Diese Liste ist so wichtig wie der Funktionsumfang.
 - **E-3 CLI-Framework: picocli** — Standard im Java-Ökosystem, und sein Annotation
   Processor erzeugt die GraalVM-Konfiguration bereits mit.
 
-- **E-4 Auslieferung.** Zuerst Fat-JAR mit `.bat`/`.sh`-Launcher, native-image als Ziel,
-  nicht als erster Schritt. Später GitHub-Actions-Matrix und Scoop-Bucket (Windows ist die
+- **E-4 Auslieferung.** Zuerst Fat-JAR mit Launcher-Skripten — `bin/jpm` (POSIX sh) und
+  `bin/jpm.cmd` (Windows) —, native-image als Ziel, nicht als erster Schritt. Später GitHub-Actions-Matrix und Scoop-Bucket (Windows ist die
   Hauptplattform); SDKMAN! scheidet aus, solange das so ist.
 
 - **E-5 Schreibsicherheit.** Ergebnis im Speicher erzeugen → neu parsen und verifizieren →
